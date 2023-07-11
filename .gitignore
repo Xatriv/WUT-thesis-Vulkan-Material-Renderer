@@ -1,0 +1,11 @@
+.vscode/
+*.out
+*.spv
+include/
+Vulkan/
+OpenGL/
+models/*
+!models/.gitkeep
+textures/*
+!textures/.gitkeep
+shaders/tex*
