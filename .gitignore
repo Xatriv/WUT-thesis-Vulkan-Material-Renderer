@@ -9,3 +9,4 @@ models/*
 textures/*
 !textures/.gitkeep
 shaders/tex*
+error.txt

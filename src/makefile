@@ -9,8 +9,8 @@ fragSources = $(shell find ../shaders -type f -name "*.frag")
 fragObjFiles = $(patsubst %.frag, %.frag.spv, $(fragSources))
 
 VMR.out: $(vertObjFiles) $(fragObjFiles)
-VMR.out: main.cpp
-	$(CC) $(CFLAGS) -o $@ main.cpp $(LDFLAGS)
+VMR.out: *.cpp *.h
+	g++ $(CFLAGS) -o VMR.out *.cpp $(LDFLAGS) 2> error.txt
 
 .PHONY: test clean
 
