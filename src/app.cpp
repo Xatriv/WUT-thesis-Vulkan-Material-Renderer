@@ -191,6 +191,8 @@ namespace vmr{
 
         vkDestroyCommandPool(device->logical(), commandPool, nullptr);
 
+        delete device;
+
 
         glfwDestroyWindow(window);
 
