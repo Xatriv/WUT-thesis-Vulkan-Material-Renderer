@@ -21,23 +21,22 @@ namespace vmr{
 class SwapChain {
 
 private:
-//TODO underscores
     Device* _device;
     GLFWwindow* _window;
     VkSwapchainKHR _swapChain;
-    std::vector<VkImage> swapChainImages;
+    std::vector<VkImage> _swapChainImages;
     VkFormat _swapChainImageFormat;
     VkExtent2D _swapChainExtent;
-    std::vector<VkImageView> swapChainImageViews;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
+    std::vector<VkImageView> _swapChainImageViews;
+    std::vector<VkFramebuffer> _swapChainFramebuffers;
     VkRenderPass _renderPass;
-    VkImage depthImage;
-    VkDeviceMemory depthImageMemory;
-    VkImageView depthImageView;
-    VkImage textureImage;
-    VkDeviceMemory textureImageMemory;
-    VkImageView textureImageView;
-    VkSampler textureSampler;
+    VkImage _depthImage;
+    VkDeviceMemory _depthImageMemory;
+    VkImageView _depthImageView;
+    VkImage _textureImage;
+    VkDeviceMemory _textureImageMemory;
+    VkImageView _textureImageView;
+    VkSampler _textureSampler;
     
     void createSwapChain();
     void createImageViews();
@@ -50,6 +49,7 @@ private:
     bool hasStencilComponent(VkFormat format);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+
 public:
     SwapChain(Device* device, GLFWwindow* window);
     ~SwapChain();
@@ -58,7 +58,7 @@ public:
     VkExtent2D&                 extent()        {return _swapChainExtent; }
     VkRenderPass&               renderPass()    {return _renderPass; }
     VkFormat&                   imageFormat()   {return _swapChainImageFormat; }
-    std::vector<VkFramebuffer>& framebuffers()  {return swapChainFramebuffers; }
+    std::vector<VkFramebuffer>& framebuffers()  {return _swapChainFramebuffers; }
 
     void createFramebuffers();
     void createDepthResources();

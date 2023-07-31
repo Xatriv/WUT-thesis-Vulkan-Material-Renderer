@@ -25,11 +25,11 @@ SwapChain::~SwapChain(){
     cleanupSwapChain();
 
     if (TEXTURE_PATH.length() > 0) {
-        vkDestroySampler(_device->logical(), textureSampler, nullptr);
-        vkDestroyImageView(_device->logical(), textureImageView, nullptr);
+        vkDestroySampler(_device->logical(), _textureSampler, nullptr);
+        vkDestroyImageView(_device->logical(), _textureImageView, nullptr);
 
-        vkDestroyImage(_device->logical(), textureImage, nullptr);
-        vkFreeMemory(_device->logical(), textureImageMemory, nullptr);
+        vkDestroyImage(_device->logical(), _textureImage, nullptr);
+        vkFreeMemory(_device->logical(), _textureImageMemory, nullptr);
     }
 }
 
@@ -74,8 +74,8 @@ void SwapChain::createSwapChain() {
         throw std::runtime_error("failed to create swap chain!");
     }
     vkGetSwapchainImagesKHR(_device->logical(), _swapChain, &imageCount, nullptr);
-    swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(_device->logical(), _swapChain, &imageCount, swapChainImages.data());
+    _swapChainImages.resize(imageCount);
+    vkGetSwapchainImagesKHR(_device->logical(), _swapChain, &imageCount, _swapChainImages.data());
 
     _swapChainImageFormat = surfaceFormat.format;
     _swapChainExtent = extent;
@@ -137,15 +137,15 @@ void SwapChain::recreateSwapChain() {
 }
 
 void SwapChain::cleanupSwapChain() {
-    vkDestroyImageView(_device->logical(), depthImageView, nullptr);
-    vkDestroyImage(_device->logical(), depthImage, nullptr);
-    vkFreeMemory(_device->logical(), depthImageMemory, nullptr);
+    vkDestroyImageView(_device->logical(), _depthImageView, nullptr);
+    vkDestroyImage(_device->logical(), _depthImage, nullptr);
+    vkFreeMemory(_device->logical(), _depthImageMemory, nullptr);
     
-    for (auto framebuffer : swapChainFramebuffers) {
+    for (auto framebuffer : _swapChainFramebuffers) {
         vkDestroyFramebuffer(_device->logical(), framebuffer, nullptr);
     }
 
-    for (auto imageView : swapChainImageViews) {
+    for (auto imageView : _swapChainImageViews) {
         vkDestroyImageView(_device->logical(), imageView, nullptr);
     }
 
@@ -153,27 +153,27 @@ void SwapChain::cleanupSwapChain() {
 }
 
 void SwapChain::createImageViews() {
-    swapChainImageViews.resize(swapChainImages.size());
+    _swapChainImageViews.resize(_swapChainImages.size());
 
-    for (uint32_t i = 0; i < swapChainImages.size(); i++) {
-        swapChainImageViews[i] = createImageView(swapChainImages[i], _swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+    for (uint32_t i = 0; i < _swapChainImages.size(); i++) {
+        _swapChainImageViews[i] = createImageView(_swapChainImages[i], _swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 }
 
 void SwapChain::createDepthResources() {
     VkFormat depthFormat = _device->findDepthFormat();
-    createImage(_swapChainExtent.width, _swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
-    depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-    transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    createImage(_swapChainExtent.width, _swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _depthImage, _depthImageMemory);
+    _depthImageView = createImageView(_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    transitionImageLayout(_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     
 }
 
 void SwapChain::createFramebuffers() {
-    swapChainFramebuffers.resize(swapChainImageViews.size());
-    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+    _swapChainFramebuffers.resize(_swapChainImageViews.size());
+    for (size_t i = 0; i < _swapChainImageViews.size(); i++) {
         std::array<VkImageView, 2> attachments = {
-            swapChainImageViews[i],
-            depthImageView
+            _swapChainImageViews[i],
+            _depthImageView
         };
 
         VkFramebufferCreateInfo framebufferInfo{};
@@ -185,7 +185,7 @@ void SwapChain::createFramebuffers() {
         framebufferInfo.height = _swapChainExtent.height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(_device->logical(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+        if (vkCreateFramebuffer(_device->logical(), &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
@@ -212,7 +212,7 @@ VkImageView SwapChain::createImageView(VkImage image, VkFormat format, VkImageAs
 }
 
 void SwapChain::createTextureImageView() {
-    textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    _textureImageView = createImageView(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 void SwapChain::createTextureSampler() {
@@ -237,7 +237,7 @@ void SwapChain::createTextureSampler() {
     samplerInfo.mipLodBias = 0.0f;
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
-    if (vkCreateSampler(_device->logical(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+    if (vkCreateSampler(_device->logical(), &samplerInfo, nullptr, &_textureSampler) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
 }
@@ -366,10 +366,10 @@ void SwapChain::createTextureImage() {
 
     stbi_image_free(pixels);
 
-    createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory);
+    transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    copyBufferToImage(stagingBuffer, _textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(_device->logical(), stagingBuffer, nullptr);
     vkFreeMemory(_device->logical(), stagingBufferMemory, nullptr);
