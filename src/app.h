@@ -17,6 +17,7 @@
 
 #include "vertex.h"
 #include "device.h"
+#include "swap_chain.h"
 
 #define MOVEMENT_CAMERA 0
 #define MOVEMENT_LIGHT 1
@@ -40,18 +41,11 @@ public:
 private:
     GLFWwindow* window;
     Device* device;
-    VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
-    std::vector<VkImageView> swapChainImageViews;
-    VkRenderPass renderPass;
+    SwapChain* swapChain;
     VkPipelineLayout pipelineLayout;
     VkPipelineLayout lightPipelineLayout;
     VkPipeline graphicsPipeline;
     VkPipeline lightGraphicsPipeline;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -73,14 +67,6 @@ private:
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
 
-    VkImage textureImage;
-    VkDeviceMemory textureImageMemory;
-    VkImageView textureImageView;
-    VkSampler textureSampler;
-
-    VkImage depthImage;
-    VkDeviceMemory depthImageMemory;
-    VkImageView depthImageView;
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
@@ -97,29 +83,19 @@ private:
     void handleKeystrokes();
     void mainLoop();
     void cleanup();
-    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-    void createSwapChain();
-    void createImageViews();
     void createRenderPass();
     void createGraphicsPipeline(VkPipeline* pipeline, VkPipelineLayout* layout,  std::string vertPath, std::string fragPath);
     static std::vector<char> readFile(const std::string& filename);
     VkShaderModule createShaderModule(const std::vector<char>& code);
-    void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
     void drawFrame();
     void createSyncObjects();
-    void cleanupSwapChain();
-    void recreateSwapChain();
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
     void createVertexBuffer();
     void createSphereVertexBuffer();
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     void createIndexBuffer();
     void createSphereIndexBuffer();
     void createDescriptorSetLayout();
@@ -127,19 +103,14 @@ private:
     void updateUniformBuffer(uint32_t currentImage);
     void createDescriptorPool();
     void createDescriptorSets();
-    void createTextureImage();
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);   
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-    VkCommandBuffer beginSingleTimeCommands();
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void createTextureImageView();
     void createTextureSampler();
-    void createDepthResources();
     VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
     VkFormat findDepthFormat();
-    bool hasStencilComponent(VkFormat format);
     void loadModel();
 };
 }

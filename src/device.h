@@ -30,6 +30,8 @@ private:
     VkSurfaceKHR _surface;
     VkQueue _graphicsQueue;
     VkQueue _presentQueue;
+    VkCommandPool _commandPool;
+
 
     void createInstance();
     void setupDebugMessenger();
@@ -56,9 +58,15 @@ public:
     VkSurfaceKHR&           surface()           {return _surface; }
     VkQueue&                graphicsQueue()     {return _graphicsQueue; }
     VkQueue&                presentQueue()      {return _presentQueue; }
+    VkCommandPool&          commandPool()       {return _commandPool; }
 
     VkFormat findDepthFormat();
+    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    VkCommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 };
 }
