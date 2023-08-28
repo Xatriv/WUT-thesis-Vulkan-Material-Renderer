@@ -26,19 +26,19 @@ Pipeline::~Pipeline(){
     vkDestroyPipeline(_device->logical(), _graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(_device->logical(), _pipelineLayout, nullptr);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroyBuffer(_device->logical(), uniformBuffers[i], nullptr);
-        vkFreeMemory(_device->logical(), uniformBuffersMemory[i], nullptr);
+        vkDestroyBuffer(_device->logical(), _uniformBuffers[i], nullptr);
+        vkFreeMemory(_device->logical(), _uniformBuffersMemory[i], nullptr);
     }
 
     vkDestroyDescriptorPool(_device->logical(), _descriptorPool, nullptr);
 
     vkDestroyDescriptorSetLayout(_device->logical(), _descriptorSetLayout, nullptr);
 
-    vkDestroyBuffer(_device->logical(), indexBuffer, nullptr);
-    vkFreeMemory(_device->logical(), indexBufferMemory, nullptr);
+    vkDestroyBuffer(_device->logical(), _indexBuffer, nullptr);
+    vkFreeMemory(_device->logical(), _indexBufferMemory, nullptr);
 
-    vkDestroyBuffer(_device->logical(), vertexBuffer, nullptr);
-    vkFreeMemory(_device->logical(), vertexBufferMemory, nullptr);
+    vkDestroyBuffer(_device->logical(), _vertexBuffer, nullptr);
+    vkFreeMemory(_device->logical(), _vertexBufferMemory, nullptr);
 }
 
 void Pipeline::createGraphicsPipeline(std::string vertPath, std::string fragPath) {
@@ -246,7 +246,7 @@ void Pipeline::createDescriptorSets() {
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = uniformBuffers[i];
+        bufferInfo.buffer = _uniformBuffers[i];
         bufferInfo.offset = 0;
         bufferInfo.range = _isDefaultShader ? sizeof( ModelUniformBufferObject) : sizeof( LightUniformBufferObject);
 
@@ -302,14 +302,14 @@ void Pipeline::createDescriptorSetLayout() {
 void Pipeline::createUniformBuffers() {
     VkDeviceSize bufferSize = _isDefaultShader ? sizeof( ModelUniformBufferObject) : sizeof( LightUniformBufferObject);
 
-    uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-    uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+    _uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    _uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+    _uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        _device->createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+        _device->createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _uniformBuffers[i], _uniformBuffersMemory[i]);
 
-        vkMapMemory(_device->logical(), uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+        vkMapMemory(_device->logical(), _uniformBuffersMemory[i], 0, bufferSize, 0, &_uniformBuffersMapped[i]);
     }
 }
 
@@ -332,7 +332,7 @@ void Pipeline::updateUniformBuffer(uint32_t currentImage) {
         ubo.position = actualPosition;
         ubo.rgb = glm::vec3(0.6f, 0.6f, 0.6f);
         ubo.lightPosition = *_lightPosition;
-        memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+        memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     } else {
         LightUniformBufferObject ubo{};
         auto actualPosition = glm::vec3(_observerPosition->y * glm::sin(_observerPosition->x), _observerPosition->y * glm::cos(_observerPosition->x), _observerPosition->z);
@@ -342,13 +342,13 @@ void Pipeline::updateUniformBuffer(uint32_t currentImage) {
 
         auto scaleLight = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f));
         ubo.model = glm::translate(scaleLight, *_lightPosition);
-        memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+        memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     }
 }
 
 
 void Pipeline::createVertexBuffer() {
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(_vertices[0]) * _vertices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -356,19 +356,19 @@ void Pipeline::createVertexBuffer() {
 
     void* data;
     vkMapMemory(_device->logical(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), (size_t) bufferSize);
+        memcpy(data, _vertices.data(), (size_t) bufferSize);
     vkUnmapMemory(_device->logical(), stagingBufferMemory);
 
-    _device->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+    _device->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _vertexBuffer, _vertexBufferMemory);
 
-    _device->copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+    _device->copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
 
     vkDestroyBuffer(_device->logical(), stagingBuffer, nullptr);
     vkFreeMemory(_device->logical(), stagingBufferMemory, nullptr);
 }
 
 void Pipeline::createIndexBuffer() {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    VkDeviceSize bufferSize = sizeof(_indices[0]) * _indices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -376,12 +376,12 @@ void Pipeline::createIndexBuffer() {
 
     void* data;
     vkMapMemory(_device->logical(), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), (size_t) bufferSize);
+    memcpy(data, _indices.data(), (size_t) bufferSize);
     vkUnmapMemory(_device->logical(), stagingBufferMemory);
 
-    _device->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+    _device->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
 
-    _device->copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+    _device->copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
 
     vkDestroyBuffer(_device->logical(), stagingBuffer, nullptr);
     vkFreeMemory(_device->logical(), stagingBufferMemory, nullptr);
@@ -425,10 +425,10 @@ void Pipeline::loadModel() {
             vertex.color = {0.1f, 0.1f, 0.1f};
 
             if (uniqueVertices.count(vertex) == 0) {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
+                uniqueVertices[vertex] = static_cast<uint32_t>(_vertices.size());
+                _vertices.push_back(vertex);
             }
-            indices.push_back(uniqueVertices[vertex]);
+            _indices.push_back(uniqueVertices[vertex]);
         }
     }
 }
@@ -443,15 +443,15 @@ void Pipeline::prepareModel() {
 }
 
 void Pipeline::bind(VkCommandBuffer& commandBuffer, int currentFrame) {
-    VkBuffer vertexBuffers[] = {vertexBuffer};
+    VkBuffer vertexBuffers[] = {_vertexBuffer};
     VkDeviceSize offsets[] = {0};
 
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-    vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT32);
     
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1, &_descriptorSets[currentFrame], 0, nullptr);
-    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(_indices.size()), 1, 0, 0, 0);
 }
 
 }

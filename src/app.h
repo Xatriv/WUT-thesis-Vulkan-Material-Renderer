@@ -25,26 +25,22 @@
 
 namespace vmr {
 class App{
-public:
-    void run();
 private:
-    GLFWwindow* window;
-    Device* device;
-    SwapChain* swapChain;
-    Pipeline* modelPipeline;
-    Pipeline* lightPipeline;
-    std::vector<VkCommandBuffer> commandBuffers;
-    std::vector<VkSemaphore> imageAvailableSemaphores;
-    std::vector<VkSemaphore> renderFinishedSemaphores;
-    std::vector<VkFence> inFlightFences;
-    uint32_t currentFrame = 0;
-    bool framebufferResized = false;
-    std::vector<Vertex> sphereVertices;
-    std::vector<uint32_t> sphereIndices;
+    GLFWwindow* _window;
+    Device* _device;
+    SwapChain* _swapChain;
+    Pipeline* _modelPipeline;
+    Pipeline* _lightPipeline;
+    std::vector<VkCommandBuffer> _commandBuffers;
+    std::vector<VkSemaphore> _imageAvailableSemaphores;
+    std::vector<VkSemaphore> _renderFinishedSemaphores;
+    std::vector<VkFence> _inFlightFences;
+    uint32_t _currentFrame = 0;
+    bool _framebufferResized = false;
 
-    int movementMode = MOVEMENT_CAMERA;
-    glm::vec3 lightPosition = glm::vec3(20.0f, 0.0f, 10.0f);
-    glm::vec3 observerPosition = glm::vec3(0.0f, 5.0f, 2.0f);
+    int _movementMode = MOVEMENT_CAMERA;
+    glm::vec3 _lightPosition = glm::vec3(20.0f, 0.0f, 10.0f);
+    glm::vec3 _observerPosition = glm::vec3(0.0f, 5.0f, 2.0f);
 
     void initWindow();
     void initVulkan();
@@ -58,6 +54,9 @@ private:
     void drawFrame();
     void createSyncObjects();
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+    
+public:
+    void run();
 };
 
 }

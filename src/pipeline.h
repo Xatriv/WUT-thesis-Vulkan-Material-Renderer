@@ -65,16 +65,16 @@ private:
     VkDescriptorPool _descriptorPool;
     std::vector<VkDescriptorSet> _descriptorSets;
     VkDescriptorSetLayout _descriptorSetLayout;
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
-    std::vector<void*> uniformBuffersMapped;
+    std::vector<VkBuffer> _uniformBuffers;
+    std::vector<VkDeviceMemory> _uniformBuffersMemory;
+    std::vector<void*> _uniformBuffersMapped;
     std::string _modelPath;
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
+    VkBuffer _vertexBuffer;
+    VkDeviceMemory _vertexBufferMemory;
+    VkBuffer _indexBuffer;
+    VkDeviceMemory _indexBufferMemory;
+    std::vector<Vertex> _vertices;
+    std::vector<uint32_t> _indices;
 
     bool _isDefaultShader;
     glm::vec3* _lightPosition;

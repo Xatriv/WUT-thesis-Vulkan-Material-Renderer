@@ -57,89 +57,89 @@ void App::initWindow(){
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); //don't create opengl context
     // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //handling this requires special care
 
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Material Renderer", nullptr, nullptr);
-    glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    _window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Material Renderer", nullptr, nullptr);
+    glfwSetWindowUserPointer(_window, this);
+    glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 }
 void App::initVulkan() {
 
-    device = new Device(window);
+    _device = new Device(_window);
 
-    swapChain = new SwapChain(device, window);
+    _swapChain = new SwapChain(_device, _window);
     createRenderPass();
-    modelPipeline = new Pipeline(device, swapChain, VERT_SHADER_PATH, FRAG_SHADER_PATH, MODEL_PATH, true, &lightPosition, &observerPosition);
-    lightPipeline = new Pipeline(device, swapChain, LIGHT_VERT_SHADER_PATH, LIGHT_FRAG_SHADER_PATH, SPHERE_MODEL_PATH, false, &lightPosition, &observerPosition);
+    _modelPipeline = new Pipeline(_device, _swapChain, VERT_SHADER_PATH, FRAG_SHADER_PATH, MODEL_PATH, true, &_lightPosition, &_observerPosition);
+    _lightPipeline = new Pipeline(_device, _swapChain, LIGHT_VERT_SHADER_PATH, LIGHT_FRAG_SHADER_PATH, SPHERE_MODEL_PATH, false, &_lightPosition, &_observerPosition);
     createCommandPool();
-    swapChain->createDepthResources();
-    swapChain->createFramebuffers();
+    _swapChain->createDepthResources();
+    _swapChain->createFramebuffers();
     #ifdef USE_TEXTURES
-        swapChain->createTextureImage();
-        swapChain->createTextureImageView();
-        swapChain->createTextureSampler();
+        _swapChain->createTextureImage();
+        _swapChain->createTextureImageView();
+        _swapChain->createTextureSampler();
     #endif
-    modelPipeline->prepareModel();
-    lightPipeline->prepareModel();
+    _modelPipeline->prepareModel();
+    _lightPipeline->prepareModel();
     createCommandBuffers();
     createSyncObjects();
 }
 
 void App::handleKeystrokes(){
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) movementMode = MOVEMENT_CAMERA;
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) movementMode = MOVEMENT_LIGHT;
-    if (movementMode == MOVEMENT_LIGHT){
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) lightPosition.x += 0.01f;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) lightPosition.x += -0.01f;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) lightPosition.y += 0.01f;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) lightPosition.y += -0.01f;
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) lightPosition.z += 0.01f;
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) lightPosition.z += -0.01f;
-    } else if (movementMode == MOVEMENT_CAMERA) {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) observerPosition.y += -0.01f;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) observerPosition.y += 0.01f;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) observerPosition.x += 0.01f;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) observerPosition.x += -0.01f;
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) observerPosition.z += 0.01f;
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) observerPosition.z += -0.01f;
+    if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(_window, true);
+    if (glfwGetKey(_window, GLFW_KEY_1) == GLFW_PRESS) _movementMode = MOVEMENT_CAMERA;
+    if (glfwGetKey(_window, GLFW_KEY_2) == GLFW_PRESS) _movementMode = MOVEMENT_LIGHT;
+    if (_movementMode == MOVEMENT_LIGHT){
+        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _lightPosition.x += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _lightPosition.x += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _lightPosition.y += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _lightPosition.y += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _lightPosition.z += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _lightPosition.z += -0.01f;
+    } else if (_movementMode == MOVEMENT_CAMERA) {
+        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _observerPosition.y += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _observerPosition.y += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _observerPosition.x += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _observerPosition.x += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _observerPosition.z += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _observerPosition.z += -0.01f;
     }
 }
 
 void App::mainLoop() { //render frames
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(_window)) {
         glfwPollEvents();
         handleKeystrokes();
         drawFrame();
     }
 
-    vkDeviceWaitIdle(device->logical());
+    vkDeviceWaitIdle(_device->logical());
 }
 
 void App::cleanup() {
-    delete swapChain;
+    delete _swapChain;
 
-    vkDestroyRenderPass(device->logical(), swapChain->renderPass(), nullptr);
+    vkDestroyRenderPass(_device->logical(), _swapChain->renderPass(), nullptr);
 
-    delete modelPipeline;
-    delete lightPipeline;
+    delete _modelPipeline;
+    delete _lightPipeline;
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroySemaphore(device->logical(), renderFinishedSemaphores[i], nullptr);
-        vkDestroySemaphore(device->logical(), imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(device->logical(), inFlightFences[i], nullptr);
+        vkDestroySemaphore(_device->logical(), _renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(_device->logical(), _imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(_device->logical(), _inFlightFences[i], nullptr);
     }
 
-    vkDestroyCommandPool(device->logical(), device->commandPool(), nullptr);
+    vkDestroyCommandPool(_device->logical(), _device->commandPool(), nullptr);
 
-    delete device;
+    delete _device;
 
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(_window);
 
     glfwTerminate();
 }
 
 void App::createRenderPass() {
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = swapChain->imageFormat();
+    colorAttachment.format = _swapChain->imageFormat();
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; //Clear the values to a constant at the start
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -149,7 +149,7 @@ void App::createRenderPass() {
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = device->findDepthFormat();
+    depthAttachment.format = _device->findDepthFormat();
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -193,13 +193,13 @@ void App::createRenderPass() {
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(device->logical(), &renderPassInfo, nullptr, &swapChain->renderPass()) != VK_SUCCESS) {
+    if (vkCreateRenderPass(_device->logical(), &renderPassInfo, nullptr, &_swapChain->renderPass()) != VK_SUCCESS) {
         throw std::runtime_error("failed to create render pass!");
     }
 }
 
 void App::createCommandPool() {
-    QueueFamilyIndices queueFamilyIndices = device->findQueueFamilies(device->physical());
+    QueueFamilyIndices queueFamilyIndices = _device->findQueueFamilies(_device->physical());
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -207,22 +207,22 @@ void App::createCommandPool() {
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-    if (vkCreateCommandPool(device->logical(), &poolInfo, nullptr, &(device->commandPool())) != VK_SUCCESS) {
+    if (vkCreateCommandPool(_device->logical(), &poolInfo, nullptr, &(_device->commandPool())) != VK_SUCCESS) {
         throw std::runtime_error("failed to create command pool!");
     }
 }
 
 void App::createCommandBuffers() {
-    commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    _commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = device->commandPool();
+    allocInfo.commandPool = _device->commandPool();
     //Can be submitted to a queue for execution, but cannot be called from other command buffers.
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-    allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+    allocInfo.commandBufferCount = (uint32_t) _commandBuffers.size();
 
-    if (vkAllocateCommandBuffers(device->logical(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(_device->logical(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }
@@ -238,10 +238,10 @@ void App::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex
     }
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = swapChain->renderPass();
-    renderPassInfo.framebuffer = swapChain->framebuffers()[imageIndex];
+    renderPassInfo.renderPass = _swapChain->renderPass();
+    renderPassInfo.framebuffer = _swapChain->framebuffers()[imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = swapChain->extent();
+    renderPassInfo.renderArea.extent = _swapChain->extent();
 
     //color of pixels within render are with undefined values
     std::array<VkClearValue, 2> clearValues{};
@@ -253,32 +253,32 @@ void App::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelPipeline->pipeline());
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _modelPipeline->pipeline());
 
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapChain->extent().width);
-    viewport.height = static_cast<float>(swapChain->extent().height);
+    viewport.width = static_cast<float>(_swapChain->extent().width);
+    viewport.height = static_cast<float>(_swapChain->extent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = swapChain->extent();
+    scissor.extent = _swapChain->extent();
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    modelPipeline->bind(commandBuffer, currentFrame);
+    _modelPipeline->bind(commandBuffer, _currentFrame);
 
     //-----light-------
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lightPipeline->pipeline());
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _lightPipeline->pipeline());
 
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     
-    lightPipeline->bind(commandBuffer, currentFrame);
+    _lightPipeline->bind(commandBuffer, _currentFrame);
   
     vkCmdEndRenderPass(commandBuffer);
 
@@ -288,44 +288,44 @@ void App::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex
 }
 
 void App::drawFrame() {
-    vkWaitForFences(device->logical(), 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkWaitForFences(_device->logical(), 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device->logical(), swapChain->swapChain(), UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(_device->logical(), _swapChain->swapChain(), UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        swapChain->recreateSwapChain();
+        _swapChain->recreateSwapChain();
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
-    modelPipeline->updateUniformBuffer(currentFrame);
-    lightPipeline->updateUniformBuffer(currentFrame);
+    _modelPipeline->updateUniformBuffer(_currentFrame);
+    _lightPipeline->updateUniformBuffer(_currentFrame);
 
     // Only reset the fence if we are submitting work
-    vkResetFences(device->logical(), 1, &inFlightFences[currentFrame]);
+    vkResetFences(_device->logical(), 1, &_inFlightFences[_currentFrame]);
 
-    vkResetCommandBuffer(commandBuffers[currentFrame],  0);
-    recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+    vkResetCommandBuffer(_commandBuffers[_currentFrame],  0);
+    recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+    VkSemaphore waitSemaphores[] = {_imageAvailableSemaphores[_currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+    submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
 
-    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+    VkSemaphore signalSemaphores[] = {_renderFinishedSemaphores[_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(device->graphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+    if (vkQueueSubmit(_device->graphicsQueue(), 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 
@@ -335,34 +335,34 @@ void App::drawFrame() {
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = {swapChain->swapChain()};
+    VkSwapchainKHR swapChains[] = {_swapChain->swapChain()};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
     presentInfo.pResults = nullptr; // Optional
 
-    result = vkQueuePresentKHR(device->presentQueue(), &presentInfo);
+    result = vkQueuePresentKHR(_device->presentQueue(), &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        framebufferResized = false;
-        swapChain->recreateSwapChain();
+        _framebufferResized = false;
+        _swapChain->recreateSwapChain();
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
 
-    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-    if (movementMode == MOVEMENT_CAMERA){
-        std::cout<<"CAM "<<observerPosition.x<<";"<<observerPosition.y<<";"<<observerPosition.z<<"\n";
-    } else if (movementMode == MOVEMENT_LIGHT){
-        std::cout<<"SRC "<<lightPosition.x<<";"<<lightPosition.y<<";"<<lightPosition.z<<"\n";
+    _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    if (_movementMode == MOVEMENT_CAMERA){
+        std::cout<<"CAM "<<_observerPosition.x<<";"<<_observerPosition.y<<";"<<_observerPosition.z<<"\n";
+    } else if (_movementMode == MOVEMENT_LIGHT){
+        std::cout<<"SRC "<<_lightPosition.x<<";"<<_lightPosition.y<<";"<<_lightPosition.z<<"\n";
     }
 }
 
 void App::createSyncObjects() {
-    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    _imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -372,9 +372,9 @@ void App::createSyncObjects() {
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateSemaphore(device->logical(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(device->logical(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(device->logical(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+        if (vkCreateSemaphore(_device->logical(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(_device->logical(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(_device->logical(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS) {
 
             throw std::runtime_error("failed to create synchronization objects for a frame!");
         }
@@ -382,9 +382,9 @@ void App::createSyncObjects() {
 }
 
 
-void App::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-    app->framebufferResized = true;
+void App::framebufferResizeCallback(GLFWwindow* _window, int width, int height) {
+    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(_window));
+    app->_framebufferResized = true;
 }
 
 }
