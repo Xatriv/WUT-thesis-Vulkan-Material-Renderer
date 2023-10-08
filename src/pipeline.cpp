@@ -16,8 +16,8 @@
 #include "pipeline.h"
 
 namespace vmr{
-Pipeline::Pipeline(Device* device, SwapChain* swapChain, std::string vertPath, std::string fragPath, std::string modelPath, bool isDefaultShader, glm::vec3* lightPosition, glm::vec3* observerPosition) 
-            : _device(device), _swapChain(swapChain), _modelPath(modelPath), _isDefaultShader(isDefaultShader), _observerPosition(observerPosition), _lightPosition(lightPosition) {
+Pipeline::Pipeline(Device* device, SwapChain* swapChain, std::string vertPath, std::string fragPath, std::string modelPath, bool isDefaultShader, glm::vec3* lightPosition, glm::vec3* observerPosition, glm::vec3* cameraFront, glm::vec3* cameraUp) 
+            : _device(device), _swapChain(swapChain), _modelPath(modelPath), _isDefaultShader(isDefaultShader), _observerPosition(observerPosition), _lightPosition(lightPosition), _cameraDirection(cameraFront), _cameraUp(cameraUp){
     createDescriptorSetLayout();
     createGraphicsPipeline(vertPath, fragPath);
 };
@@ -315,33 +315,34 @@ void Pipeline::createUniformBuffers() {
 
 
 void Pipeline::updateUniformBuffer(uint32_t currentImage) {
-    if (_isDefaultShader){
-        static auto startTime = std::chrono::high_resolution_clock::now();
+    static auto startTime = std::chrono::high_resolution_clock::now();
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    glm::vec3 cameraPos = *_observerPosition;
+    auto cameraFront = glm::normalize(*_cameraDirection);
+    auto view = glm::lookAt(cameraPos, cameraPos + cameraFront, *_cameraUp);
+    auto proj = glm::perspective(glm::radians(70.0f), _swapChain->extent().width / (float) _swapChain->extent().height, 0.1f, 100.0f);
+    proj[1][1] *= -1; // coordinate flip due to opposite Y in Vulkan vs OpenGL
+
+    if (_isDefaultShader){
         ModelUniformBufferObject ubo{};
         auto scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
         auto rotate = glm::rotate(scale, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         ubo.model = glm::rotate(rotate, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        auto actualPosition = glm::vec3(_observerPosition->y * glm::sin(_observerPosition->x), _observerPosition->y * glm::cos(_observerPosition->x), _observerPosition->z);
-        ubo.view = glm::lookAt(actualPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(70.0f), _swapChain->extent().width / (float) _swapChain->extent().height, 0.1f, 100.0f);
-        ubo.proj[1][1] *= -1; // coordinate flip due to opposite Y in Vulkan vs OpenGL
+        ubo.view = view;
+        ubo.proj = proj;
         ubo.shininess = 8;
-        ubo.position = actualPosition;
+        ubo.position = cameraPos;
         ubo.rgb = glm::vec3(0.6f, 0.6f, 0.6f);
         ubo.lightPosition = *_lightPosition;
         memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     } else {
         LightUniformBufferObject ubo{};
-        auto actualPosition = glm::vec3(_observerPosition->y * glm::sin(_observerPosition->x), _observerPosition->y * glm::cos(_observerPosition->x), _observerPosition->z);
-        ubo.view = glm::lookAt(actualPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(70.0f), _swapChain->extent().width / (float) _swapChain->extent().height, 0.1f, 100.0f);
-        ubo.proj[1][1] *= -1; // coordinate flip due to opposite Y in Vulkan vs OpenGL
-
         auto scaleLight = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f));
         ubo.model = glm::translate(scaleLight, *_lightPosition);
+        ubo.view = view;
+        ubo.proj = proj;
         memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     }
 }

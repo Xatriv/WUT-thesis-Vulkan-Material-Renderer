@@ -79,6 +79,8 @@ private:
     bool _isDefaultShader;
     glm::vec3* _lightPosition;
     glm::vec3* _observerPosition;
+    glm::vec3* _cameraDirection;
+    glm::vec3* _cameraUp;
 
     void createGraphicsPipeline(std::string vertPath, std::string fragPath);
     std::vector<char> readFile(const std::string& filename);
@@ -92,7 +94,7 @@ private:
     void loadModel();
 
 public:
-    Pipeline(Device* device, SwapChain* swapChain, std::string vertPath, std::string fragPath, std::string modelPath, bool isDefaultShader, glm::vec3* lightPosition,  glm::vec3* observerPosition);
+    Pipeline(Device* device, SwapChain* swapChain, std::string vertPath, std::string fragPath, std::string modelPath, bool isDefaultShader, glm::vec3* lightPosition,  glm::vec3* observerPosition, glm::vec3* cameraFront, glm::vec3* cameraUp);
 
     ~Pipeline();
     VkPipeline&                     pipeline()          {return _graphicsPipeline; }

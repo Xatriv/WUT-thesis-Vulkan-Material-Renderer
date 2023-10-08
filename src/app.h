@@ -26,6 +26,8 @@
 namespace vmr {
 class App{
 private:
+    const uint32_t WIDTH = 1280;
+    const uint32_t HEIGHT = 720;
     GLFWwindow* _window;
     Device* _device;
     SwapChain* _swapChain;
@@ -40,7 +42,15 @@ private:
 
     int _movementMode = MOVEMENT_CAMERA;
     glm::vec3 _lightPosition = glm::vec3(20.0f, 0.0f, 10.0f);
-    glm::vec3 _observerPosition = glm::vec3(0.0f, 5.0f, 2.0f);
+    glm::vec3 _observerPosition = glm::vec3(-6.0f, -1.0f, 2.0f);
+    glm::vec3 _cameraDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 _cameraUp = glm::vec3(0.0f, 0.0f, 1.0f);
+    const float cameraSpeed = 0.005f;
+    bool firstMouse = true;
+    double lastX = WIDTH / 2;
+    double lastY = HEIGHT / 2;
+    float pitch;
+    float yaw;
 
     void initWindow();
     void initVulkan();
@@ -54,6 +64,7 @@ private:
     void drawFrame();
     void createSyncObjects();
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+    static void mouseMovementCallback(GLFWwindow* window, double xpos, double ypos);
     
 public:
     void run();

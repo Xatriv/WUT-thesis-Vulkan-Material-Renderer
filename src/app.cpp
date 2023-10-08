@@ -22,14 +22,13 @@
 #include "app.h"
 
 
-const uint32_t WIDTH = 1280;
-const uint32_t HEIGHT = 720;
-
 const std::string SPHERE_MODEL_PATH = "../models/sphere.obj";
 const std::string MODEL_PATH = "../models/skull.obj";
 
-const std::string VERT_SHADER_PATH = "../shaders/phong_shader.vert.spv";
-const std::string FRAG_SHADER_PATH = "../shaders/phong_shader.frag.spv";
+// const std::string VERT_SHADER_PATH = "../shaders/phong_shader.vert.spv";
+// const std::string FRAG_SHADER_PATH = "../shaders/phong_shader.frag.spv";
+const std::string VERT_SHADER_PATH = "../shaders/cook_torrance_ggx.vert.spv";
+const std::string FRAG_SHADER_PATH = "../shaders/cook_torrance_ggx.frag.spv";
 const std::string LIGHT_VERT_SHADER_PATH = "../shaders/light_shader.vert.spv";
 const std::string LIGHT_FRAG_SHADER_PATH = "../shaders/light_shader.frag.spv";
 
@@ -55,9 +54,10 @@ void App::initWindow(){
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); //don't create opengl context
-    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); //handling this requires special care
 
     _window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Material Renderer", nullptr, nullptr);
+    glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(_window, mouseMovementCallback);
     glfwSetWindowUserPointer(_window, this);
     glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 }
@@ -67,8 +67,8 @@ void App::initVulkan() {
 
     _swapChain = new SwapChain(_device, _window);
     createRenderPass();
-    _modelPipeline = new Pipeline(_device, _swapChain, VERT_SHADER_PATH, FRAG_SHADER_PATH, MODEL_PATH, true, &_lightPosition, &_observerPosition);
-    _lightPipeline = new Pipeline(_device, _swapChain, LIGHT_VERT_SHADER_PATH, LIGHT_FRAG_SHADER_PATH, SPHERE_MODEL_PATH, false, &_lightPosition, &_observerPosition);
+    _modelPipeline = new Pipeline(_device, _swapChain, VERT_SHADER_PATH, FRAG_SHADER_PATH, MODEL_PATH, true, &_lightPosition, &_observerPosition, &_cameraDirection, &_cameraUp);
+    _lightPipeline = new Pipeline(_device, _swapChain, LIGHT_VERT_SHADER_PATH, LIGHT_FRAG_SHADER_PATH, SPHERE_MODEL_PATH, false, &_lightPosition, &_observerPosition, &_cameraDirection, &_cameraUp);
     createCommandPool();
     _swapChain->createDepthResources();
     _swapChain->createFramebuffers();
@@ -95,10 +95,10 @@ void App::handleKeystrokes(){
         if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _lightPosition.z += 0.01f;
         if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _lightPosition.z += -0.01f;
     } else if (_movementMode == MOVEMENT_CAMERA) {
-        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _observerPosition.y += -0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _observerPosition.y += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _observerPosition.x += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _observerPosition.x += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _observerPosition += cameraSpeed * _cameraDirection;
+        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _observerPosition -= cameraSpeed * _cameraDirection;
+        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _observerPosition -= glm::normalize(glm::cross(_cameraDirection, _cameraUp)) * cameraSpeed;
+        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _observerPosition += glm::normalize(glm::cross(_cameraDirection, _cameraUp)) * cameraSpeed;
         if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _observerPosition.z += 0.01f;
         if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _observerPosition.z += -0.01f;
     }
@@ -245,7 +245,7 @@ void App::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex
 
     //color of pixels within render are with undefined values
     std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+    clearValues[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
     clearValues[1].depthStencil = {1.0f, 0};
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -382,9 +382,36 @@ void App::createSyncObjects() {
 }
 
 
-void App::framebufferResizeCallback(GLFWwindow* _window, int width, int height) {
-    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(_window));
+void App::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
     app->_framebufferResized = true;
 }
+
+void App::mouseMovementCallback(GLFWwindow* window, double xpos, double ypos){
+    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+    if (app->firstMouse) {
+        app->lastX = xpos;
+        app->lastY = ypos;
+        app->firstMouse = false; 
+    }
+
+    float xoffset = xpos - app->lastX;
+    float yoffset = ypos - app->lastY; 
+    app->lastX = xpos;
+    app->lastY = ypos;
+
+    float sensitivity = 0.1f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    app->yaw   -= xoffset;
+    app->pitch -= yoffset;
+
+    app->pitch = std::clamp(app->pitch, -89.0f, 89.0f);
+    
+    app->_cameraDirection.x = cos(glm::radians(app->yaw)) * cos(glm::radians(app->pitch));
+    app->_cameraDirection.y = sin(glm::radians(app->yaw)) * cos(glm::radians(app->pitch));
+    app->_cameraDirection.z = sin(glm::radians(app->pitch));
+}  
 
 }
