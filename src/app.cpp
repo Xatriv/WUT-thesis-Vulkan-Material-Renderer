@@ -21,7 +21,7 @@
 
 #include "app.h"
 
-
+// https://github.com/nlohmann/json
 const std::string SPHERE_MODEL_PATH = "../models/sphere.obj";
 const std::string MODEL_PATH = "../models/skull.obj";
 
