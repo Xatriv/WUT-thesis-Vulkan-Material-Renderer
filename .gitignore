@@ -2,6 +2,7 @@
 *.out
 *.spv
 include/
+build/
 Vulkan/
 OpenGL/
 models/*

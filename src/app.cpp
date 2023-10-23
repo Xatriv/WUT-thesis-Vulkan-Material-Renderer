@@ -22,15 +22,15 @@
 #include "app.h"
 
 // https://github.com/nlohmann/json
-const std::string SPHERE_MODEL_PATH = "../models/sphere.obj";
-const std::string MODEL_PATH = "../models/skull.obj";
+const std::string SPHERE_MODEL_PATH = "./models/sphere.obj";
+const std::string MODEL_PATH = "./models/skull.obj";
 
 // const std::string VERT_SHADER_PATH = "../shaders/phong_shader.vert.spv";
 // const std::string FRAG_SHADER_PATH = "../shaders/phong_shader.frag.spv";
-const std::string VERT_SHADER_PATH = "../shaders/cook_torrance_ggx.vert.spv";
-const std::string FRAG_SHADER_PATH = "../shaders/cook_torrance_ggx.frag.spv";
-const std::string LIGHT_VERT_SHADER_PATH = "../shaders/light_shader.vert.spv";
-const std::string LIGHT_FRAG_SHADER_PATH = "../shaders/light_shader.frag.spv";
+const std::string VERT_SHADER_PATH = "./shaders/cook_torrance_ggx.vert.spv";
+const std::string FRAG_SHADER_PATH = "./shaders/cook_torrance_ggx.frag.spv";
+const std::string LIGHT_VERT_SHADER_PATH = "./shaders/light_shader.vert.spv";
+const std::string LIGHT_FRAG_SHADER_PATH = "./shaders/light_shader.frag.spv";
 
 
 
