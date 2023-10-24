@@ -20,18 +20,7 @@
 #include <limits>
 
 #include "app.h"
-
-// https://github.com/nlohmann/json
-const std::string SPHERE_MODEL_PATH = "./models/sphere.obj";
-const std::string MODEL_PATH = "./models/skull.obj";
-
-// const std::string VERT_SHADER_PATH = "../shaders/phong_shader.vert.spv";
-// const std::string FRAG_SHADER_PATH = "../shaders/phong_shader.frag.spv";
-const std::string VERT_SHADER_PATH = "./shaders/cook_torrance_ggx.vert.spv";
-const std::string FRAG_SHADER_PATH = "./shaders/cook_torrance_ggx.frag.spv";
-const std::string LIGHT_VERT_SHADER_PATH = "./shaders/light_shader.vert.spv";
-const std::string LIGHT_FRAG_SHADER_PATH = "./shaders/light_shader.frag.spv";
-
+#include "app_config.h"
 
 
 #ifdef NDEBUG
@@ -42,6 +31,8 @@ const std::string LIGHT_FRAG_SHADER_PATH = "./shaders/light_shader.frag.spv";
 
 
 namespace vmr{
+
+App::App(AppConfig* config) : _appConfig(config) { }
 
 void App::run() {
     initWindow();
@@ -55,7 +46,7 @@ void App::initWindow(){
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); //don't create opengl context
 
-    _window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Material Renderer", nullptr, nullptr);
+    _window = glfwCreateWindow(_appConfig->windowWidth(), _appConfig->windowHeight(), "Vulkan Material Renderer", nullptr, nullptr);
     glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(_window, mouseMovementCallback);
     glfwSetWindowUserPointer(_window, this);
@@ -67,8 +58,8 @@ void App::initVulkan() {
 
     _swapChain = new SwapChain(_device, _window);
     createRenderPass();
-    _modelPipeline = new Pipeline(_device, _swapChain, VERT_SHADER_PATH, FRAG_SHADER_PATH, MODEL_PATH, true, &_lightPosition, &_observerPosition, &_cameraDirection, &_cameraUp);
-    _lightPipeline = new Pipeline(_device, _swapChain, LIGHT_VERT_SHADER_PATH, LIGHT_FRAG_SHADER_PATH, SPHERE_MODEL_PATH, false, &_lightPosition, &_observerPosition, &_cameraDirection, &_cameraUp);
+    _modelPipeline = new Pipeline(_device, _swapChain, _appConfig, _appConfig->modelVertexShaderPath(), _appConfig->modelFragmentShaderPath(), _appConfig->displayModelPath(),  true);
+    _lightPipeline = new Pipeline(_device, _swapChain, _appConfig, _appConfig->lightVertexShaderPath(), _appConfig->lightFragmentShaderPath(), _appConfig->sphereModelPath(), false);
     createCommandPool();
     _swapChain->createDepthResources();
     _swapChain->createFramebuffers();
@@ -85,22 +76,22 @@ void App::initVulkan() {
 
 void App::handleKeystrokes(){
     if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(_window, true);
-    if (glfwGetKey(_window, GLFW_KEY_1) == GLFW_PRESS) _movementMode = MOVEMENT_CAMERA;
-    if (glfwGetKey(_window, GLFW_KEY_2) == GLFW_PRESS) _movementMode = MOVEMENT_LIGHT;
-    if (_movementMode == MOVEMENT_LIGHT){
-        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _lightPosition.x += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _lightPosition.x += -0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _lightPosition.y += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _lightPosition.y += -0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _lightPosition.z += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _lightPosition.z += -0.01f;
-    } else if (_movementMode == MOVEMENT_CAMERA) {
-        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _observerPosition += cameraSpeed * _cameraDirection;
-        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _observerPosition -= cameraSpeed * _cameraDirection;
-        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _observerPosition -= glm::normalize(glm::cross(_cameraDirection, _cameraUp)) * cameraSpeed;
-        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _observerPosition += glm::normalize(glm::cross(_cameraDirection, _cameraUp)) * cameraSpeed;
-        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _observerPosition.z += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _observerPosition.z += -0.01f;
+    if (glfwGetKey(_window, GLFW_KEY_1) == GLFW_PRESS) _appConfig->movementMode(MOVEMENT_CAMERA);
+    if (glfwGetKey(_window, GLFW_KEY_2) == GLFW_PRESS) _appConfig->movementMode(MOVEMENT_LIGHT);
+    if (_appConfig->movementMode() == MOVEMENT_LIGHT){
+        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _appConfig->lightPosition().x += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _appConfig->lightPosition().x += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _appConfig->lightPosition().y += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _appConfig->lightPosition().y += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->lightPosition().z += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->lightPosition().z += -0.01f;
+    } else if (_appConfig->movementMode() == MOVEMENT_CAMERA) {
+        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _appConfig->observerPosition() += _appConfig->cameraSpeed() * _appConfig->cameraFront();
+        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _appConfig->observerPosition() -= _appConfig->cameraSpeed() * _appConfig->cameraFront();
+        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _appConfig->observerPosition() -= glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _appConfig->observerPosition() += glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->observerPosition().z += 0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->observerPosition().z += -0.01f;
     }
 }
 
@@ -352,10 +343,14 @@ void App::drawFrame() {
     }
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-    if (_movementMode == MOVEMENT_CAMERA){
-        std::cout<<"CAM "<<_observerPosition.x<<";"<<_observerPosition.y<<";"<<_observerPosition.z<<"\n";
-    } else if (_movementMode == MOVEMENT_LIGHT){
-        std::cout<<"SRC "<<_lightPosition.x<<";"<<_lightPosition.y<<";"<<_lightPosition.z<<"\n";
+    if (_appConfig->movementMode() == MOVEMENT_CAMERA){
+        std::cout<<"CAM "<<_appConfig->observerPosition().x<<";"
+                        <<_appConfig->observerPosition().y<<";"
+                        <<_appConfig->observerPosition().z<<"\n";
+    } else if (_appConfig->movementMode() == MOVEMENT_LIGHT){
+        std::cout<<"SRC "<<_appConfig->lightPosition().x<<";"
+                        <<_appConfig->lightPosition().y<<";"
+                        <<_appConfig->lightPosition().z<<"\n";
     }
 }
 
@@ -389,29 +384,29 @@ void App::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 
 void App::mouseMovementCallback(GLFWwindow* window, double xpos, double ypos){
     auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-    if (app->firstMouse) {
-        app->lastX = xpos;
-        app->lastY = ypos;
-        app->firstMouse = false; 
+    if (app->_appConfig->firstMouse()) {
+        app->_appConfig->lastX(xpos);
+        app->_appConfig->lastY(ypos);
+        app->_appConfig->firstMouse(false); 
     }
 
-    float xoffset = xpos - app->lastX;
-    float yoffset = ypos - app->lastY; 
-    app->lastX = xpos;
-    app->lastY = ypos;
+    float xoffset = xpos - app->_appConfig->lastX();
+    float yoffset = ypos - app->_appConfig->lastY(); 
+    app->_appConfig->lastX(xpos);
+    app->_appConfig->lastY(ypos);
 
     float sensitivity = 0.1f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
-    app->yaw   -= xoffset;
-    app->pitch -= yoffset;
+    app->_appConfig->yaw(app->_appConfig->yaw() - xoffset);
+    app->_appConfig->pitch(app->_appConfig->pitch() - yoffset);
 
-    app->pitch = std::clamp(app->pitch, -89.0f, 89.0f);
+    app->_appConfig->pitch(std::clamp(app->_appConfig->pitch(), -89.0f, 89.0f));
     
-    app->_cameraDirection.x = cos(glm::radians(app->yaw)) * cos(glm::radians(app->pitch));
-    app->_cameraDirection.y = sin(glm::radians(app->yaw)) * cos(glm::radians(app->pitch));
-    app->_cameraDirection.z = sin(glm::radians(app->pitch));
+    app->_appConfig->cameraFront().x = cos(glm::radians(app->_appConfig->yaw())) * cos(glm::radians(app->_appConfig->pitch()));
+    app->_appConfig->cameraFront().y = sin(glm::radians(app->_appConfig->yaw())) * cos(glm::radians(app->_appConfig->pitch()));
+    app->_appConfig->cameraFront().z = sin(glm::radians(app->_appConfig->pitch()));
 }  
 
 }

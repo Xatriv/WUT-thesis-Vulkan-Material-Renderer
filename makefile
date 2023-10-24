@@ -2,8 +2,8 @@ CC = g++
 BUILD_DIR = build
 SRC_DIR = src
 GLSLC = /usr/local/bin/glslc
-CFLAGS = -std=c++17 -O3
-LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi #-I./include
+CFLAGS = -std=c++17 -O3 -I./include
+LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi 
 
 cppSources = $(wildcard $(SRC_DIR)/*.cpp)
 vertSources = $(shell find ./shaders -type f -name "*.vert")

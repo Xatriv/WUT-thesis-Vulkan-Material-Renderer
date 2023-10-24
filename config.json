@@ -1,0 +1,37 @@
+{
+    "path": {
+        "sphereModel": "./models/sphere.obj",
+        "displayModel": "./models/skull.obj",
+        "modelVertexShader": "./shaders/cook_torrance_ggx.vert.spv",
+        "modelFragmentShader": "./shaders/cook_torrance_ggx.frag.spv",
+        "lightVertexShader": "./shaders/light_shader.vert.spv",
+        "lightFragmentShader": "./shaders/light_shader.frag.spv"
+    },
+    "windowSize": {
+        "width": 1280,
+        "height": 720
+    },
+    "camera": {
+        "speed": 0.005,
+        "front": {
+            "x": 1.0,
+            "y": 0.0,
+            "z": 0.0  
+        },
+        "up": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0 
+        }
+    },
+    "lightPosition": {
+        "x": 20.0,
+        "y": 0.0,
+        "z": 10.0
+    },
+    "observerPosition": {
+        "x": 1.0,
+        "y": 4.5,
+        "z": 2.0
+    }
+}

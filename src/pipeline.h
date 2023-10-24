@@ -14,6 +14,7 @@
 #include <vector>
 #include <cstring>
 
+#include "app_config.h"
 #include "device.h"
 #include "swap_chain.h"
 #include "vertex.h"
@@ -58,6 +59,7 @@ struct LightUniformBufferObject {
 namespace vmr {
 class Pipeline {
 private:
+    AppConfig* _appConfig;
     Device* _device;
     SwapChain* _swapChain;
     VkPipelineLayout _pipelineLayout;
@@ -75,12 +77,7 @@ private:
     VkDeviceMemory _indexBufferMemory;
     std::vector<Vertex> _vertices;
     std::vector<uint32_t> _indices;
-
     bool _isDefaultShader;
-    glm::vec3* _lightPosition;
-    glm::vec3* _observerPosition;
-    glm::vec3* _cameraDirection;
-    glm::vec3* _cameraUp;
 
     void createGraphicsPipeline(std::string vertPath, std::string fragPath);
     std::vector<char> readFile(const std::string& filename);
@@ -94,8 +91,7 @@ private:
     void loadModel();
 
 public:
-    Pipeline(Device* device, SwapChain* swapChain, std::string vertPath, std::string fragPath, std::string modelPath, bool isDefaultShader, glm::vec3* lightPosition,  glm::vec3* observerPosition, glm::vec3* cameraFront, glm::vec3* cameraUp);
-
+    Pipeline(Device* device, SwapChain* swapChain, AppConfig* appConfig, std::string vertPath, std::string fragPath, std::string modelPath, bool isDefaultShader);
     ~Pipeline();
     VkPipeline&                     pipeline()          {return _graphicsPipeline; }
     VkPipelineLayout&               layout()            {return _pipelineLayout; }
