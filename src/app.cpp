@@ -96,11 +96,17 @@ void App::handleKeystrokes(){
 }
 
 void App::mainLoop() { //render frames
+    auto start = std::chrono::high_resolution_clock::now();
+    uint64_t framesCount = 0;
     while (!glfwWindowShouldClose(_window)) {
         glfwPollEvents();
         handleKeystrokes();
         drawFrame();
+        framesCount++;
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto executionTime = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    std::cout<<"Avg fps: "<<framesCount / (double) executionTime.count()<<std::endl;
 
     vkDeviceWaitIdle(_device->logical());
 }
