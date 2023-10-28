@@ -10,7 +10,7 @@ AppConfig::AppConfig(std::string configPath) {
     }
     nlohmann::json jsonConfig; 
     i >> jsonConfig;
-    _sphereModelPath = jsonConfig["path"]["sphereModel"];//;.get<std::string>();
+    _sphereModelPath = jsonConfig["path"]["sphereModel"];
     _displayModelPath = jsonConfig["path"]["displayModel"];
     _modelVertexShaderPath = jsonConfig["path"]["modelVertexShader"];
     _modelFragmentShaderPath = jsonConfig["path"]["modelFragmentShader"];
@@ -19,6 +19,7 @@ AppConfig::AppConfig(std::string configPath) {
     _windowWidth = jsonConfig["windowSize"]["width"];
     _windowHeight = jsonConfig["windowSize"]["height"];
     _cameraSpeed = jsonConfig["camera"]["speed"];
+    _lightSpeed = jsonConfig["lightSpeed"];
     _cameraFront = glm::vec3(
         jsonConfig["camera"]["front"]["x"],
         jsonConfig["camera"]["front"]["y"],
@@ -38,6 +39,11 @@ AppConfig::AppConfig(std::string configPath) {
         jsonConfig["observerPosition"]["x"],
         jsonConfig["observerPosition"]["y"],
         jsonConfig["observerPosition"]["z"]
+    );
+    _objectColor = glm::vec3(
+        jsonConfig["objectColor"]["r"],
+        jsonConfig["objectColor"]["g"],
+        jsonConfig["objectColor"]["b"]
     );
 
     _lastX = _windowWidth / 2;

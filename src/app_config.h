@@ -21,10 +21,12 @@ public:
     int windowWidth()                       const { return _windowWidth; }
     int windowHeight()                      const { return _windowHeight; }
     float cameraSpeed()                     const { return _cameraSpeed; }
+    float lightSpeed()                      const { return _lightSpeed; }
     glm::vec3 cameraFront()                 const { return _cameraFront; }
     glm::vec3 cameraUp()                    const { return _cameraUp; }
     glm::vec3 lightPosition()               const { return _lightPosition; } 
     glm::vec3 observerPosition()            const { return _observerPosition; }
+    glm::vec3 objectColor()                 const { return _objectColor; } //TODO remove 
     int movementMode()                      const { return _movementMode; }
     bool firstMouse()                       const { return _firstMouse; }
     double lastX()                          const { return _lastX; }
@@ -53,10 +55,12 @@ private:
     int _windowWidth;
     int _windowHeight;
     float _cameraSpeed;
+    float _lightSpeed;
     glm::vec3 _cameraFront;
     glm::vec3 _cameraUp;
     glm::vec3 _lightPosition;
     glm::vec3 _observerPosition;
+    glm::vec3 _objectColor;
     int _movementMode = MOVEMENT_CAMERA;
     bool _firstMouse = true;
     double _lastX;

@@ -327,22 +327,26 @@ void Pipeline::updateUniformBuffer(uint32_t currentImage) {
     auto proj = glm::perspective(glm::radians(70.0f), _swapChain->extent().width / (float) _swapChain->extent().height, 0.1f, 100.0f);
     proj[1][1] *= -1; // coordinate flip due to opposite Y in Vulkan vs OpenGL
 
+    const float scaleLight = 0.1f;
+
     if (_isDefaultShader){
         ModelUniformBufferObject ubo{};
-        auto scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-        auto rotate = glm::rotate(scale, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        ubo.model = glm::rotate(rotate, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        auto rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        rotate = glm::rotate(rotate, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        auto scale = glm::scale(rotate, glm::vec3(0.5f, 0.5f, 0.5f));
+        ubo.model = scale;
         ubo.view = view;
         ubo.proj = proj;
         ubo.shininess = 8;
         ubo.position = cameraPos;
-        ubo.rgb = glm::vec3(0.6f, 0.6f, 0.6f);
+        ubo.rgb = _appConfig->objectColor();
         ubo.lightPosition = _appConfig->lightPosition();
         memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     } else {
         LightUniformBufferObject ubo{};
-        auto scaleLight = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f, 0.1f, 0.1f));
-        ubo.model = glm::translate(scaleLight, _appConfig->lightPosition());
+        auto translate = glm::translate(glm::mat4(1.0f), _appConfig->lightPosition());
+        auto scale = glm::scale(translate, glm::vec3(scaleLight, scaleLight, scaleLight));
+        ubo.model = scale;
         ubo.view = view;
         ubo.proj = proj;
         memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
@@ -425,7 +429,7 @@ void Pipeline::loadModel() {
             };
             #endif
 
-            vertex.color = {0.1f, 0.1f, 0.1f};
+            vertex.color = {0.1f, 0.1f, 0.1f}; //TODO update color data
 
             if (uniqueVertices.count(vertex) == 0) {
                 uniqueVertices[vertex] = static_cast<uint32_t>(_vertices.size());

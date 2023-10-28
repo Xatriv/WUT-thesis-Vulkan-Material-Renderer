@@ -79,19 +79,19 @@ void App::handleKeystrokes(){
     if (glfwGetKey(_window, GLFW_KEY_1) == GLFW_PRESS) _appConfig->movementMode(MOVEMENT_CAMERA);
     if (glfwGetKey(_window, GLFW_KEY_2) == GLFW_PRESS) _appConfig->movementMode(MOVEMENT_LIGHT);
     if (_appConfig->movementMode() == MOVEMENT_LIGHT){
-        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _appConfig->lightPosition().x += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _appConfig->lightPosition().x += -0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _appConfig->lightPosition().y += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _appConfig->lightPosition().y += -0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->lightPosition().z += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->lightPosition().z += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _appConfig->lightPosition().x += _appConfig->lightSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _appConfig->lightPosition().x += -_appConfig->lightSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _appConfig->lightPosition().y += _appConfig->lightSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _appConfig->lightPosition().y += -_appConfig->lightSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->lightPosition().z += _appConfig->lightSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->lightPosition().z += -_appConfig->lightSpeed();
     } else if (_appConfig->movementMode() == MOVEMENT_CAMERA) {
         if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _appConfig->observerPosition() += _appConfig->cameraSpeed() * _appConfig->cameraFront();
         if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _appConfig->observerPosition() -= _appConfig->cameraSpeed() * _appConfig->cameraFront();
         if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _appConfig->observerPosition() -= glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
         if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _appConfig->observerPosition() += glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->observerPosition().z += 0.01f;
-        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->observerPosition().z += -0.01f;
+        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->observerPosition().z += _appConfig->cameraSpeed();
+        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->observerPosition().z += -_appConfig->cameraSpeed();
     }
 }
 

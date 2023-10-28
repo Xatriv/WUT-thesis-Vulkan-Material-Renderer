@@ -1,7 +1,7 @@
 {
     "path": {
         "sphereModel": "./models/sphere.obj",
-        "displayModel": "./models/skull.obj",
+        "displayModel": "./models/head3.obj",
         "modelVertexShader": "./shaders/cook_torrance_ggx.vert.spv",
         "modelFragmentShader": "./shaders/cook_torrance_ggx.frag.spv",
         "lightVertexShader": "./shaders/light_shader.vert.spv",
@@ -24,14 +24,20 @@
             "z": 1.0 
         }
     },
+    "lightSpeed": 0.002,
     "lightPosition": {
-        "x": 20.0,
+        "x": 2.0,
         "y": 0.0,
-        "z": 10.0
+        "z": 1.0
     },
     "observerPosition": {
         "x": 1.0,
         "y": 4.5,
         "z": 2.0
+    },
+    "objectColor": {
+        "r": 0.1,
+        "g": 0.1,
+        "b": 0.1
     }
 }
