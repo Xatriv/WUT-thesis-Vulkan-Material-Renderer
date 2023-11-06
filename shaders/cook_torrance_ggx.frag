@@ -3,10 +3,8 @@
 #define PI 3.14159265
 
  
-const float roughness = 0.1;
+const float roughness = 0.5;
 const float IOR = 1.5;
-const float kd = 0.5;
-const float ks = 1 - kd;
 
 
 layout(binding = 0) uniform UniformBufferObject {
@@ -30,7 +28,7 @@ float chi(float v)
 
 
 // Cook-Torrance Specular
-float rs() {
+vec3 rs() {
 
     vec3 N = normalize(vertexNormal);
     vec3 V = normalize(ubo.position - vertexPosition);
@@ -40,6 +38,8 @@ float rs() {
     float HdotN = max(0.0, dot(H, N));
     float NdotV = max(0.0, dot(N, V));
     float NdotL = max(0.0, dot(N, L));
+    float HdotL = max(0.0, dot(H, L));
+    float HdotV = max(0.0, dot(H, V));
 
     float alpha = roughness * roughness;
     float HdotN2 = HdotN * HdotN;
@@ -49,22 +49,27 @@ float rs() {
     //GGX distribution
 
     float F0 = pow((IOR - 1.0) / (IOR + 1.0), 2);
-    float F = F0 + (1.0 - F0) * pow(1.0 - dot(N, V), 5);
+    float F = F0 + (1.0 - F0) * pow(1.0 - dot(H, V), 5);
     //Schlick-Fresnel
 
-    float G = 0.5 / mix(2 * NdotL * NdotV, NdotL + NdotV, roughness) * chi(NdotL); //TODO too dim for rougness==1.0
+    float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chi(NdotL); //TODO too dim for rougness==1.0
     // Unreal G_GGX approximation
 
-    return G * F * D; 
+    float brdf = G * F * D;
+
+    float kd = F0;
+    float ks = 1 - kd;
+
+    float sinT = sqrt( 1 - NdotL * NdotL);
+
+    // return ks * brdf * sinT + kd * ubo.rgb * NdotL;
+    return ks * brdf * sinT + ubo.rgb * NdotL;
+
 }
 
 
 void main() {
-    // float spec = ks * rs();
-    // vec3 diff = kd * ubo.rgb / PI;
-    // vec3 total = diff + spec;
+    vec3 total = rs();
     
-    float spec = rs(); 
-    fragmentColor = vec4(spec, spec, spec , 1.0);
-    // fragmentColor = vec4(total , 1.0);
+    fragmentColor = vec4(total , 1.0);
 }
