@@ -39,6 +39,7 @@ private:
     void initWindow();
     void initVulkan();
     void handleKeystrokes();
+    bool isPressed(int key);
     void mainLoop();
     void cleanup();
     void createRenderPass();

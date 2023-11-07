@@ -15,9 +15,11 @@ layout(binding = 0) uniform UniformBufferObject {
     vec3 position;
     vec3 lightPosition;
 } ubo;
+layout(binding = 1) uniform sampler2D texSampler;
 
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec3 vertexNormal;
+layout(location = 2) in vec2 vertexTexCoord ;
 
 layout(location = 0) out vec4 fragmentColor;
 
@@ -28,7 +30,7 @@ float chi(float v)
 
 
 // Cook-Torrance Specular
-vec3 rs() {
+vec4 rs() {
 
     vec3 N = normalize(vertexNormal);
     vec3 V = normalize(ubo.position - vertexPosition);
@@ -63,13 +65,13 @@ vec3 rs() {
     float sinT = sqrt( 1 - NdotL * NdotL);
 
     // return ks * brdf * sinT + kd * ubo.rgb * NdotL;
-    return ks * brdf * sinT + ubo.rgb * NdotL;
+    return ks * brdf * sinT +  texture(texSampler, vertexTexCoord) * NdotL;
 
 }
 
 
 void main() {
-    vec3 total = rs();
+    vec4 total = rs();
     
-    fragmentColor = vec4(total , 1.0);
+    fragmentColor = total;
 }

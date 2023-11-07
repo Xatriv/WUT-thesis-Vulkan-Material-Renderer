@@ -4,7 +4,6 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL
 
-/// #define USE_TEXTURES
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -56,18 +55,16 @@ void App::initVulkan() {
 
     _device = new Device(_window);
 
-    _swapChain = new SwapChain(_device, _window);
+    _swapChain = new SwapChain(_device, _window, _appConfig);
     createRenderPass();
     _modelPipeline = new Pipeline(_device, _swapChain, _appConfig, _appConfig->modelVertexShaderPath(), _appConfig->modelFragmentShaderPath(), _appConfig->displayModelPath(),  true);
     _lightPipeline = new Pipeline(_device, _swapChain, _appConfig, _appConfig->lightVertexShaderPath(), _appConfig->lightFragmentShaderPath(), _appConfig->sphereModelPath(), false);
     createCommandPool();
     _swapChain->createDepthResources();
     _swapChain->createFramebuffers();
-    #ifdef USE_TEXTURES
-        _swapChain->createTextureImage();
-        _swapChain->createTextureImageView();
-        _swapChain->createTextureSampler();
-    #endif
+    _swapChain->createTextureImage();
+    _swapChain->createTextureImageView();
+    _swapChain->createTextureSampler();
     _modelPipeline->prepareModel();
     _lightPipeline->prepareModel();
     createCommandBuffers();
@@ -75,24 +72,28 @@ void App::initVulkan() {
 }
 
 void App::handleKeystrokes(){
-    if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(_window, true);
-    if (glfwGetKey(_window, GLFW_KEY_1) == GLFW_PRESS) _appConfig->movementMode(MOVEMENT_CAMERA);
-    if (glfwGetKey(_window, GLFW_KEY_2) == GLFW_PRESS) _appConfig->movementMode(MOVEMENT_LIGHT);
+    if (isPressed(GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(_window, true);
+    if (isPressed(GLFW_KEY_1)) _appConfig->movementMode(MOVEMENT_CAMERA);
+    if (isPressed(GLFW_KEY_2)) _appConfig->movementMode(MOVEMENT_LIGHT);
     if (_appConfig->movementMode() == MOVEMENT_LIGHT){
-        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _appConfig->lightPosition().x += _appConfig->lightSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _appConfig->lightPosition().x += -_appConfig->lightSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _appConfig->lightPosition().y += _appConfig->lightSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _appConfig->lightPosition().y += -_appConfig->lightSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->lightPosition().z += _appConfig->lightSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->lightPosition().z += -_appConfig->lightSpeed();
+        if (isPressed(GLFW_KEY_W)) _appConfig->lightPosition().x += _appConfig->lightSpeed();
+        if (isPressed(GLFW_KEY_S)) _appConfig->lightPosition().x += -_appConfig->lightSpeed();
+        if (isPressed(GLFW_KEY_A)) _appConfig->lightPosition().y += _appConfig->lightSpeed();
+        if (isPressed(GLFW_KEY_D)) _appConfig->lightPosition().y += -_appConfig->lightSpeed();
+        if (isPressed(GLFW_KEY_Q)) _appConfig->lightPosition().z += _appConfig->lightSpeed();
+        if (isPressed(GLFW_KEY_E)) _appConfig->lightPosition().z += -_appConfig->lightSpeed();
     } else if (_appConfig->movementMode() == MOVEMENT_CAMERA) {
-        if (glfwGetKey(_window, GLFW_KEY_W) == GLFW_PRESS) _appConfig->observerPosition() += _appConfig->cameraSpeed() * _appConfig->cameraFront();
-        if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS) _appConfig->observerPosition() -= _appConfig->cameraSpeed() * _appConfig->cameraFront();
-        if (glfwGetKey(_window, GLFW_KEY_A) == GLFW_PRESS) _appConfig->observerPosition() -= glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS) _appConfig->observerPosition() += glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_Q) == GLFW_PRESS) _appConfig->observerPosition().z += _appConfig->cameraSpeed();
-        if (glfwGetKey(_window, GLFW_KEY_E) == GLFW_PRESS) _appConfig->observerPosition().z += -_appConfig->cameraSpeed();
+        if (isPressed(GLFW_KEY_W)) _appConfig->observerPosition() += _appConfig->cameraSpeed() * _appConfig->cameraFront();
+        if (isPressed(GLFW_KEY_S)) _appConfig->observerPosition() -= _appConfig->cameraSpeed() * _appConfig->cameraFront();
+        if (isPressed(GLFW_KEY_A)) _appConfig->observerPosition() -= glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
+        if (isPressed(GLFW_KEY_D)) _appConfig->observerPosition() += glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
+        if (isPressed(GLFW_KEY_Q)) _appConfig->observerPosition().z += _appConfig->cameraSpeed();
+        if (isPressed(GLFW_KEY_E)) _appConfig->observerPosition().z += -_appConfig->cameraSpeed();
     }
+}
+
+bool App::isPressed(int key) {
+    return glfwGetKey(_window, key) == GLFW_PRESS;
 }
 
 void App::mainLoop() { //render frames

@@ -1,7 +1,8 @@
 {
     "path": {
         "sphereModel": "./models/sphere.obj",
-        "displayModel": "./models/head3.obj",
+        "displayModel": "./models/head1.obj",
+        "modelTexture": "./textures/Head1VTX_vcols.png",
         "modelVertexShader": "./shaders/cook_torrance_ggx.vert.spv",
         "modelFragmentShader": "./shaders/cook_torrance_ggx.frag.spv",
         "lightVertexShader": "./shaders/light_shader.vert.spv",

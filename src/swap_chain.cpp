@@ -8,15 +8,13 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
-#include "device.h"
 #include "swap_chain.h"
-
-const std::string TEXTURE_PATH = "";
 
 namespace vmr{
 
-SwapChain::SwapChain(Device* device, GLFWwindow* window) : _device(device), _window(window){
+SwapChain::SwapChain(Device* device, GLFWwindow* window, AppConfig* appConfig) : _device(device), _window(window), _appConfig(appConfig) {
     createSwapChain();
     createImageViews();
 };
@@ -24,13 +22,11 @@ SwapChain::SwapChain(Device* device, GLFWwindow* window) : _device(device), _win
 SwapChain::~SwapChain(){
     cleanupSwapChain();
 
-    if (TEXTURE_PATH.length() > 0) {
-        vkDestroySampler(_device->logical(), _textureSampler, nullptr);
-        vkDestroyImageView(_device->logical(), _textureImageView, nullptr);
+    vkDestroySampler(_device->logical(), _textureSampler, nullptr);
+    vkDestroyImageView(_device->logical(), _textureImageView, nullptr);
 
-        vkDestroyImage(_device->logical(), _textureImage, nullptr);
-        vkFreeMemory(_device->logical(), _textureImageMemory, nullptr);
-    }
+    vkDestroyImage(_device->logical(), _textureImage, nullptr);
+    vkFreeMemory(_device->logical(), _textureImageMemory, nullptr);
 }
 
 
@@ -165,7 +161,6 @@ void SwapChain::createDepthResources() {
     createImage(_swapChainExtent.width, _swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _depthImage, _depthImageMemory);
     _depthImageView = createImageView(_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
     transitionImageLayout(_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-    
 }
 
 void SwapChain::createFramebuffers() {
@@ -228,7 +223,7 @@ void SwapChain::createTextureSampler() {
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.anisotropyEnable = VK_TRUE;
-    samplerInfo.maxAnisotropy = samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+    samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
     samplerInfo.compareEnable = VK_FALSE;
@@ -347,8 +342,7 @@ void SwapChain::createImage(uint32_t width, uint32_t height, VkFormat format, Vk
 
 void SwapChain::createTextureImage() {
     int texWidth, texHeight, texChannels;
-    // stbi_uc* pixels = stbi_load("textures/image.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(_appConfig->modelTexturePath().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels) {

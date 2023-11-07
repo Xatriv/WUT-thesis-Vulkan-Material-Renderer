@@ -15,12 +15,14 @@
 #include <vector>
 
 #include "device.h"
+#include "app_config.h"
 
 
 namespace vmr{
 class SwapChain {
 
 private:
+    AppConfig* _appConfig;
     Device* _device;
     GLFWwindow* _window;
     VkSwapchainKHR _swapChain;
@@ -51,14 +53,16 @@ private:
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 
 public:
-    SwapChain(Device* device, GLFWwindow* window);
+    SwapChain(Device* device, GLFWwindow* window, AppConfig* appConfig);
     ~SwapChain();
     void recreateSwapChain();
-    VkSwapchainKHR&             swapChain()     {return _swapChain; }
-    VkExtent2D&                 extent()        {return _swapChainExtent; }
-    VkRenderPass&               renderPass()    {return _renderPass; }
-    VkFormat&                   imageFormat()   {return _swapChainImageFormat; }
-    std::vector<VkFramebuffer>& framebuffers()  {return _swapChainFramebuffers; }
+    VkSwapchainKHR&             swapChain()         {return _swapChain; }
+    VkExtent2D&                 extent()            {return _swapChainExtent; }
+    VkRenderPass&               renderPass()        {return _renderPass; }
+    VkFormat&                   imageFormat()       {return _swapChainImageFormat; }
+    std::vector<VkFramebuffer>& framebuffers()      {return _swapChainFramebuffers; }
+    VkImageView&                textureImageView()  {return _textureImageView; }
+    VkSampler                   textureSampler()    {return _textureSampler; }
 
     void createFramebuffers();
     void createDepthResources();

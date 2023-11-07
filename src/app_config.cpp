@@ -12,6 +12,7 @@ AppConfig::AppConfig(std::string configPath) {
     i >> jsonConfig;
     _sphereModelPath = jsonConfig["path"]["sphereModel"];
     _displayModelPath = jsonConfig["path"]["displayModel"];
+    _modelTexturePath = jsonConfig["path"]["modelTexture"];
     _modelVertexShaderPath = jsonConfig["path"]["modelVertexShader"];
     _modelFragmentShaderPath = jsonConfig["path"]["modelFragmentShader"];
     _lightVertexShaderPath = jsonConfig["path"]["lightVertexShader"];

@@ -14,6 +14,7 @@ public:
 
     std::string sphereModelPath()           const { return _sphereModelPath; }
     std::string displayModelPath()          const { return _displayModelPath; }
+    std::string modelTexturePath()          const { return _modelTexturePath; }
     std::string modelVertexShaderPath()     const { return _modelVertexShaderPath; }
     std::string modelFragmentShaderPath()   const { return _modelFragmentShaderPath; }
     std::string lightVertexShaderPath()     const { return _lightVertexShaderPath; }
@@ -48,6 +49,7 @@ public:
 private:
     std::string _sphereModelPath;
     std::string _displayModelPath;
+    std::string _modelTexturePath;
     std::string _modelVertexShaderPath;
     std::string _modelFragmentShaderPath;
     std::string _lightVertexShaderPath;
