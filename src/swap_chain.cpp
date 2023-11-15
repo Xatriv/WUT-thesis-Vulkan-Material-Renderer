@@ -24,9 +24,11 @@ SwapChain::~SwapChain(){
 
     vkDestroySampler(_device->logical(), _textureSampler, nullptr);
     vkDestroyImageView(_device->logical(), _textureImageView, nullptr);
-
+    vkDestroyImageView(_device->logical(), _normalMapImageView, nullptr);
     vkDestroyImage(_device->logical(), _textureImage, nullptr);
+    vkDestroyImage(_device->logical(), _normalMapImage, nullptr);
     vkFreeMemory(_device->logical(), _textureImageMemory, nullptr);
+    vkFreeMemory(_device->logical(), _normalMapMemory, nullptr);
 }
 
 
@@ -158,7 +160,8 @@ void SwapChain::createImageViews() {
 
 void SwapChain::createDepthResources() {
     VkFormat depthFormat = _device->findDepthFormat();
-    createImage(_swapChainExtent.width, _swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _depthImage, _depthImageMemory);
+    createImage(_swapChainExtent.width, _swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _depthImage, _depthImageMemory);
     _depthImageView = createImageView(_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
     transitionImageLayout(_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 }
@@ -206,8 +209,9 @@ VkImageView SwapChain::createImageView(VkImage image, VkFormat format, VkImageAs
     return imageView;
 }
 
-void SwapChain::createTextureImageView() {
+void SwapChain::createTextureImageViews() {
     _textureImageView = createImageView(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    _normalMapImageView = createImageView(_normalMapImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 void SwapChain::createTextureSampler() {
@@ -340,9 +344,14 @@ void SwapChain::createImage(uint32_t width, uint32_t height, VkFormat format, Vk
     vkBindImageMemory(_device->logical(), image, imageMemory, 0);
 }
 
-void SwapChain::createTextureImage() {
+void SwapChain::createTextureImages() {
+    createTextureImage(_textureImage, _textureImageMemory, _appConfig->modelTexturePath());
+    createTextureImage(_normalMapImage, _normalMapMemory, _appConfig->modelNormalMapPath());
+}
+
+void SwapChain::createTextureImage(VkImage& image, VkDeviceMemory& memory, std::string path) {
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(_appConfig->modelTexturePath().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels) {
@@ -360,10 +369,11 @@ void SwapChain::createTextureImage() {
 
     stbi_image_free(pixels);
 
-    createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory);
-    transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    copyBufferToImage(stagingBuffer, _textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, memory);
+    transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    copyBufferToImage(stagingBuffer, image, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+    transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(_device->logical(), stagingBuffer, nullptr);
     vkFreeMemory(_device->logical(), stagingBufferMemory, nullptr);

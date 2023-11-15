@@ -62,8 +62,8 @@ void App::initVulkan() {
     createCommandPool();
     _swapChain->createDepthResources();
     _swapChain->createFramebuffers();
-    _swapChain->createTextureImage();
-    _swapChain->createTextureImageView();
+    _swapChain->createTextureImages();
+    _swapChain->createTextureImageViews();
     _swapChain->createTextureSampler();
     _modelPipeline->prepareModel();
     _lightPipeline->prepareModel();

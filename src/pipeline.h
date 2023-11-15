@@ -25,6 +25,7 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 namespace std {
     template<> struct hash<vmr::Vertex> {
         size_t operator()(vmr::Vertex const& vertex) const {
+            //TODO include all fields
             return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
         }
     };
@@ -34,7 +35,6 @@ struct ModelUniformBufferObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
-    alignas(16) glm::vec3 rgb;
     alignas(16) glm::vec3 position;
     alignas(16) glm::vec3 lightPosition;
     alignas(16) int shininess;
@@ -80,6 +80,7 @@ private:
     void createUniformBuffers();
     void createVertexBuffer();
     void createIndexBuffer();
+    void prepareTangentSpace();
     void loadModel();
 
 public:

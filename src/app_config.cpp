@@ -13,6 +13,7 @@ AppConfig::AppConfig(std::string configPath) {
     _sphereModelPath = jsonConfig["path"]["sphereModel"];
     _displayModelPath = jsonConfig["path"]["displayModel"];
     _modelTexturePath = jsonConfig["path"]["modelTexture"];
+    _modelNormalMapPath = jsonConfig["path"]["modelNormalMap"];
     _modelVertexShaderPath = jsonConfig["path"]["modelVertexShader"];
     _modelFragmentShaderPath = jsonConfig["path"]["modelFragmentShader"];
     _lightVertexShaderPath = jsonConfig["path"]["lightVertexShader"];
@@ -41,12 +42,6 @@ AppConfig::AppConfig(std::string configPath) {
         jsonConfig["observerPosition"]["y"],
         jsonConfig["observerPosition"]["z"]
     );
-    _objectColor = glm::vec3(
-        jsonConfig["objectColor"]["r"],
-        jsonConfig["objectColor"]["g"],
-        jsonConfig["objectColor"]["b"]
-    );
-
     _lastX = _windowWidth / 2;
     _lastY = _windowHeight / 2;
 }

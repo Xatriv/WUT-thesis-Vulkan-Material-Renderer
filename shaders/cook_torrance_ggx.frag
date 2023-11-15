@@ -11,15 +11,17 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 proj;
-    vec3 rgb;
     vec3 position;
     vec3 lightPosition;
 } ubo;
 layout(binding = 1) uniform sampler2D texSampler;
+layout(binding = 2) uniform sampler2D normalMapSampler; //TODO may be broken
 
 layout(location = 0) in vec3 vertexPosition;
-layout(location = 1) in vec3 vertexNormal;
-layout(location = 2) in vec2 vertexTexCoord ;
+layout(location = 1) in vec3 vertexNormal; //TODO probably could be removed
+layout(location = 2) in vec2 vertexTexCoord;
+layout(location = 3) in mat3 TBNMatrix;
+
 
 layout(location = 0) out vec4 fragmentColor;
 
@@ -32,7 +34,10 @@ float chi(float v)
 // Cook-Torrance Specular
 vec4 rs() {
 
-    vec3 N = normalize(vertexNormal);
+    // vec3 N = normalize(vertexNormal);
+    vec3 N = normalize(texture(normalMapSampler, vertexTexCoord).rgb);
+    // N = N * 2.0 - 1.0; //This is probably wrong 
+    N = normalize(TBNMatrix * N);
     vec3 V = normalize(ubo.position - vertexPosition);
     vec3 L = normalize(ubo.lightPosition - vertexPosition);
     vec3 H = normalize(V + L); //Half-vector, between viewer and the light
@@ -54,7 +59,9 @@ vec4 rs() {
     float F = F0 + (1.0 - F0) * pow(1.0 - dot(H, V), 5);
     //Schlick-Fresnel
 
-    float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chi(NdotL); //TODO too dim for rougness==1.0
+    float chiOfActualNormal = chi(max(0.0, dot(normalize(vertexNormal), L)));
+    float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chiOfActualNormal;//TODO too dim for roughness==1.0
+    // float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chi(NdotL); //TODO too dim for roughness==1.0
     // Unreal G_GGX approximation
 
     float brdf = G * F * D;
@@ -65,8 +72,9 @@ vec4 rs() {
     float sinT = sqrt( 1 - NdotL * NdotL);
 
     // return ks * brdf * sinT + kd * ubo.rgb * NdotL;
-    return ks * brdf * sinT +  texture(texSampler, vertexTexCoord) * NdotL;
-
+    //TODO diffuse should be multiplied by kd but right now it's too dim
+    return ks * brdf * sinT + texture(texSampler, vertexTexCoord) * NdotL;
+    // return vec4(N, 1.0);
 }
 
 

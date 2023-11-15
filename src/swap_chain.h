@@ -36,8 +36,11 @@ private:
     VkDeviceMemory _depthImageMemory;
     VkImageView _depthImageView;
     VkImage _textureImage;
+    VkImage _normalMapImage;
     VkDeviceMemory _textureImageMemory;
+    VkDeviceMemory _normalMapMemory;
     VkImageView _textureImageView;
+    VkImageView _normalMapImageView;
     VkSampler _textureSampler;
     
     void createSwapChain();
@@ -47,6 +50,7 @@ private:
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void cleanupSwapChain();
     VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    void createTextureImage(VkImage& image, VkDeviceMemory& memory, std::string path);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     bool hasStencilComponent(VkFormat format);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
@@ -56,18 +60,19 @@ public:
     SwapChain(Device* device, GLFWwindow* window, AppConfig* appConfig);
     ~SwapChain();
     void recreateSwapChain();
-    VkSwapchainKHR&             swapChain()         {return _swapChain; }
-    VkExtent2D&                 extent()            {return _swapChainExtent; }
-    VkRenderPass&               renderPass()        {return _renderPass; }
-    VkFormat&                   imageFormat()       {return _swapChainImageFormat; }
-    std::vector<VkFramebuffer>& framebuffers()      {return _swapChainFramebuffers; }
-    VkImageView&                textureImageView()  {return _textureImageView; }
-    VkSampler                   textureSampler()    {return _textureSampler; }
+    VkSwapchainKHR&             swapChain()             {return _swapChain; }
+    VkExtent2D&                 extent()                {return _swapChainExtent; }
+    VkRenderPass&               renderPass()            {return _renderPass; }
+    VkFormat&                   imageFormat()           {return _swapChainImageFormat; }
+    std::vector<VkFramebuffer>& framebuffers()          {return _swapChainFramebuffers; }
+    VkImageView&                textureImageView()      {return _textureImageView; }
+    VkImageView&                normalMapImageView()    {return _normalMapImageView; }
+    VkSampler                   textureSampler()        {return _textureSampler; }
 
     void createFramebuffers();
     void createDepthResources();
-    void createTextureImage();
-    void createTextureImageView();
+    void createTextureImages();
+    void createTextureImageViews();
     void createTextureSampler();
 
 };

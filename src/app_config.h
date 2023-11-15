@@ -15,6 +15,7 @@ public:
     std::string sphereModelPath()           const { return _sphereModelPath; }
     std::string displayModelPath()          const { return _displayModelPath; }
     std::string modelTexturePath()          const { return _modelTexturePath; }
+    std::string modelNormalMapPath()        const { return _modelNormalMapPath; }
     std::string modelVertexShaderPath()     const { return _modelVertexShaderPath; }
     std::string modelFragmentShaderPath()   const { return _modelFragmentShaderPath; }
     std::string lightVertexShaderPath()     const { return _lightVertexShaderPath; }
@@ -27,7 +28,6 @@ public:
     glm::vec3 cameraUp()                    const { return _cameraUp; }
     glm::vec3 lightPosition()               const { return _lightPosition; } 
     glm::vec3 observerPosition()            const { return _observerPosition; }
-    glm::vec3 objectColor()                 const { return _objectColor; } //TODO remove 
     int movementMode()                      const { return _movementMode; }
     bool firstMouse()                       const { return _firstMouse; }
     double lastX()                          const { return _lastX; }
@@ -50,6 +50,7 @@ private:
     std::string _sphereModelPath;
     std::string _displayModelPath;
     std::string _modelTexturePath;
+    std::string _modelNormalMapPath;
     std::string _modelVertexShaderPath;
     std::string _modelFragmentShaderPath;
     std::string _lightVertexShaderPath;
@@ -62,7 +63,6 @@ private:
     glm::vec3 _cameraUp;
     glm::vec3 _lightPosition;
     glm::vec3 _observerPosition;
-    glm::vec3 _objectColor;
     int _movementMode = MOVEMENT_CAMERA;
     bool _firstMouse = true;
     double _lastX;

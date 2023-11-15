@@ -3,6 +3,7 @@
         "sphereModel": "./models/sphere.obj",
         "displayModel": "./models/head1.obj",
         "modelTexture": "./textures/Head1VTX_vcols.png",
+        "modelNormalMap": "./textures/Head1VTX_normal.png",
         "modelVertexShader": "./shaders/cook_torrance_ggx.vert.spv",
         "modelFragmentShader": "./shaders/cook_torrance_ggx.frag.spv",
         "lightVertexShader": "./shaders/light_shader.vert.spv",
@@ -35,10 +36,5 @@
         "x": 1.0,
         "y": 4.5,
         "z": 2.0
-    },
-    "objectColor": {
-        "r": 0.95,
-        "g": 0.64,
-        "b": 0.5
     }
 }
