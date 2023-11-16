@@ -1,18 +1,12 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#define STB_IMAGE_IMPLEMENTATION
-#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 
-#include <glm/glm.hpp>
-#include <GLFW/glfw3.h>
-
+#include <iostream>
 #include <vector>
+#include <fstream>
 #include <cstring>
+#include <chrono>
 
 #include "app_config.h"
 #include "device.h"

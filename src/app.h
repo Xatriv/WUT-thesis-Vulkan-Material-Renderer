@@ -1,19 +1,15 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#define STB_IMAGE_IMPLEMENTATION
-#define TINYOBJLOADER_IMPLEMENTATION
-
-#include <glm/glm.hpp>
-#include <GLFW/glfw3.h>
-
 #include <optional>
 #include <array>
 #include <vector>
+#include <iostream>
+#include <cstdlib>
+#include <vector>
+#include <cstring>
+#include <cstdint>
+#include <fstream>
+#include <limits>
 
 #include "device.h"
 #include "swap_chain.h"

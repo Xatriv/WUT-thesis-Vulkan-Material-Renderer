@@ -1,17 +1,4 @@
-#define GLFW_INCLUDE_VULKAN
-#define STB_IMAGE_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION
-
-#include <tiny_obj_loader.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/hash.hpp>
-#include <GLFW/glfw3.h>
-
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <chrono>
 
 #include "app_config.h"
 #include "pipeline.h"

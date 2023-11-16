@@ -1,16 +1,3 @@
-#define GLFW_INCLUDE_VULKAN
-
-#include <glm/glm.hpp>
-#include <glm/gtx/hash.hpp>
-#include <GLFW/glfw3.h>
-
-
-#include <cstdint>
-#include <cstring>
-#include <iostream>
-#include <stdexcept>
-#include <set>
-
 #include "device.h"
 
 #ifdef NDEBUG

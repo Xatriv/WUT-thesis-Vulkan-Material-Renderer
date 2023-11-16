@@ -1,12 +1,5 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <glm/glm.hpp>
-#include <glm/gtx/hash.hpp>
-#include <GLFW/glfw3.h>
-
-
-
 namespace vmr{
 struct Vertex {
     //TODO texCoord unnecessary for unicolored light model - this causes validation warning

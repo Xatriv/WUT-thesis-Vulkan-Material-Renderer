@@ -1,9 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
-#define GLFW_INCLUDE_VULKAN
 
 #include <stb_image.h>
-#include <glm/glm.hpp>
-#include <GLFW/glfw3.h>
 
 #include <stdexcept>
 #include <algorithm>
