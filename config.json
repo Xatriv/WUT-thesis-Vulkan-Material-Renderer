@@ -1,9 +1,9 @@
 {
     "path": {
         "sphereModel": "./models/sphere.obj",
-        "displayModel": "./models/head1.obj",
-        "modelTexture": "./textures/Head1VTX_vcols.png",
-        "modelNormalMap": "./textures/Head1VTX_normal.png",
+        "displayModel": "./models/face4.obj",
+        "modelTexture": "./textures/face_diffuse.jpg",
+        "modelNormalMap": "./textures/face_normal.jpg",
         "modelVertexShader": "./shaders/cook_torrance_ggx.vert.spv",
         "modelFragmentShader": "./shaders/cook_torrance_ggx.frag.spv",
         "lightVertexShader": "./shaders/light_shader.vert.spv",

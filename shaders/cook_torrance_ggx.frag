@@ -27,7 +27,7 @@ layout(location = 0) out vec4 fragmentColor;
 
 float chi(float v)
 {
-    return v > 0 ? 1 : 0;
+    return v > 0 ? 1 : (tanh(8*v) + 1);
 }
 
 
@@ -59,7 +59,7 @@ vec4 rs() {
     float F = F0 + (1.0 - F0) * pow(1.0 - dot(H, V), 5);
     //Schlick-Fresnel
 
-    float chiOfActualNormal = chi(max(0.0, dot(normalize(vertexNormal), L)));
+    float chiOfActualNormal = chi(dot(normalize(N), L));
     float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chiOfActualNormal;//TODO too dim for roughness==1.0
     // float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chi(NdotL); //TODO too dim for roughness==1.0
     // Unreal G_GGX approximation
@@ -71,10 +71,12 @@ vec4 rs() {
 
     float sinT = sqrt( 1 - NdotL * NdotL);
 
-    // return ks * brdf * sinT + kd * ubo.rgb * NdotL;
     //TODO diffuse should be multiplied by kd but right now it's too dim
-    return ks * brdf * sinT + texture(texSampler, vertexTexCoord) * NdotL;
-    // return vec4(N, 1.0);
+
+    vec4 ka = vec4(0.0, 0.0, 0.0, 1.0);
+
+    // return ks * brdf * sinT + texture(texSampler, vertexTexCoord) * NdotL;   // version according to formula
+    return (ks * brdf * sinT + NdotL + ka) * texture(texSampler, vertexTexCoord) ;   // color-corrected specular
 }
 
 

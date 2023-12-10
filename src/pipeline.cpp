@@ -337,10 +337,10 @@ void Pipeline::updateUniformBuffer(uint32_t currentImage) {
     glm::vec3 cameraPos = _appConfig->observerPosition();
     auto cameraFront = glm::normalize(_appConfig->cameraFront());
     auto view = glm::lookAt(cameraPos, cameraPos + cameraFront, _appConfig->cameraUp());
-    auto proj = glm::perspective(glm::radians(70.0f), _swapChain->extent().width / (float) _swapChain->extent().height, 0.1f, 100.0f);
+    auto proj = glm::perspective(glm::radians(70.0f), _swapChain->extent().width / (float) _swapChain->extent().height, 0.05f, 100.0f);
     proj[1][1] *= -1; // coordinate flip due to opposite Y in Vulkan vs OpenGL
 
-    const float scaleLight = 0.1f;
+    const float scaleLight = 0.025f;
 
     if (_isDefaultShader){
         ModelUniformBufferObject ubo{};
