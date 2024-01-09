@@ -37,8 +37,8 @@ void App::initVulkan() {
 
     _swapChain = new SwapChain(_device, _window, _appConfig);
     createRenderPass();
-    _modelPipeline = new Pipeline(_device, _swapChain, _appConfig, _appConfig->modelVertexShaderPath(), _appConfig->modelFragmentShaderPath(), _appConfig->displayModelPath(),  true);
-    _lightPipeline = new Pipeline(_device, _swapChain, _appConfig, _appConfig->lightVertexShaderPath(), _appConfig->lightFragmentShaderPath(), _appConfig->sphereModelPath(), false);
+    _modelPipeline = new ModelPipeline(_device, _swapChain, _appConfig, _appConfig->modelVertexShaderPath(), _appConfig->modelFragmentShaderPath(), _appConfig->displayModelPath());
+    _lightPipeline = new LightPipeline(_device, _swapChain, _appConfig, _appConfig->lightVertexShaderPath(), _appConfig->lightFragmentShaderPath(), _appConfig->sphereModelPath());
     createCommandPool();
     _swapChain->createDepthResources();
     _swapChain->createFramebuffers();

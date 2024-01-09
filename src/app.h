@@ -13,7 +13,8 @@
 
 #include "device.h"
 #include "swap_chain.h"
-#include "pipeline.h"
+#include "model_pipeline.h"
+#include "light_pipeline.h"
 
 
 namespace vmr {
@@ -23,7 +24,7 @@ private:
     GLFWwindow* _window;
     Device* _device;
     SwapChain* _swapChain;
-    Pipeline* _modelPipeline;
+    ModelPipeline* _modelPipeline;
     Pipeline* _lightPipeline;
     std::vector<VkCommandBuffer> _commandBuffers;
     std::vector<VkSemaphore> _imageAvailableSemaphores;

@@ -45,47 +45,49 @@ struct LightUniformBufferObject {
 namespace vmr {
 class Pipeline {
 private:
-    AppConfig* _appConfig;
-    Device* _device;
-    SwapChain* _swapChain;
     VkPipelineLayout _pipelineLayout;
     VkPipeline _graphicsPipeline;
-    VkDescriptorPool _descriptorPool;
-    std::vector<VkDescriptorSet> _descriptorSets;
-    VkDescriptorSetLayout _descriptorSetLayout;
-    std::vector<VkBuffer> _uniformBuffers;
-    std::vector<VkDeviceMemory> _uniformBuffersMemory;
-    std::vector<void*> _uniformBuffersMapped;
-    std::string _modelPath;
     VkBuffer _vertexBuffer;
     VkDeviceMemory _vertexBufferMemory;
     VkBuffer _indexBuffer;
     VkDeviceMemory _indexBufferMemory;
+
+    std::vector<char> readFile(const std::string &filename);
+    VkShaderModule createShaderModule(const std::vector<char> &code);
+
+    virtual void createDescriptorPool() = 0;
+    virtual void createDescriptorSets() = 0;
+    virtual void createUniformBuffers() = 0;
+
+protected:
+    AppConfig *_appConfig;
+    Device *_device;
+    SwapChain *_swapChain;
+    std::string _modelPath;
     std::vector<Vertex> _vertices;
     std::vector<uint32_t> _indices;
-    bool _isDefaultShader;
+    std::vector<VkDescriptorSet> _descriptorSets;
+    VkDescriptorSetLayout _descriptorSetLayout;
+    std::vector<VkBuffer> _uniformBuffers;
+    VkDescriptorPool _descriptorPool;
+    std::vector<VkDeviceMemory> _uniformBuffersMemory;
+    std::vector<void *> _uniformBuffersMapped;
 
+    virtual void createDescriptorSetLayout() = 0;
     void createGraphicsPipeline(std::string vertPath, std::string fragPath);
-    std::vector<char> readFile(const std::string& filename);
-    VkShaderModule createShaderModule(const std::vector<char>& code);
-    void createDescriptorPool();
-    void createDescriptorSets();
-    void createDescriptorSetLayout();
-    void createUniformBuffers();
     void createVertexBuffer();
     void createIndexBuffer();
-    void prepareTangentSpace();
     void loadModel();
 
 public:
-    Pipeline(Device* device, SwapChain* swapChain, AppConfig* appConfig, std::string vertPath, std::string fragPath, std::string modelPath, bool isDefaultShader);
+    Pipeline(Device *device, SwapChain *swapChain, AppConfig *appConfig, std::string vertPath, std::string fragPath, std::string modelPath);
     ~Pipeline();
-    VkPipeline&                     pipeline()          {return _graphicsPipeline; }
-    VkPipelineLayout&               layout()            {return _pipelineLayout; }
-    std::vector<VkDescriptorSet>    descriptorSets()    {return _descriptorSets; }
-    
-    void updateUniformBuffer(uint32_t currentImage);
-    void bind(VkCommandBuffer& commandBuffer, int currentFrame);
-    void prepareModel();
+    VkPipeline &pipeline() { return _graphicsPipeline; }
+    VkPipelineLayout &layout() { return _pipelineLayout; }
+    std::vector<VkDescriptorSet> descriptorSets() { return _descriptorSets; }
+
+    void bind(VkCommandBuffer &commandBuffer, int currentFrame);
+    virtual void updateUniformBuffer(uint32_t currentImage) = 0;
+    virtual void prepareModel() = 0;
 };
 }
