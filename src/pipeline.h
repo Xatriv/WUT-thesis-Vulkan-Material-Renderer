@@ -6,12 +6,13 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
-#include <chrono>
+#include <variant>
 
 #include "app_config.h"
 #include "device.h"
 #include "swap_chain.h"
 #include "vertex.h"
+#include "basic_vertex.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -21,6 +22,12 @@ namespace std {
         size_t operator()(vmr::Vertex const& vertex) const {
             //TODO include all fields
             return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+
+    template<> struct hash<vmr::BasicVertex> {
+        size_t operator()(vmr::BasicVertex const& vertex) const {
+            return (hash<glm::vec3>()(vertex.pos));
         }
     };
 };
@@ -45,15 +52,8 @@ struct LightUniformBufferObject {
 namespace vmr {
 class Pipeline {
 private:
-    VkPipelineLayout _pipelineLayout;
-    VkPipeline _graphicsPipeline;
-    VkBuffer _vertexBuffer;
-    VkDeviceMemory _vertexBufferMemory;
     VkBuffer _indexBuffer;
     VkDeviceMemory _indexBufferMemory;
-
-    std::vector<char> readFile(const std::string &filename);
-    VkShaderModule createShaderModule(const std::vector<char> &code);
 
     virtual void createDescriptorPool() = 0;
     virtual void createDescriptorSets() = 0;
@@ -64,20 +64,26 @@ protected:
     Device *_device;
     SwapChain *_swapChain;
     std::string _modelPath;
-    std::vector<Vertex> _vertices;
+    VkPipelineLayout _pipelineLayout;
+    VkPipeline _graphicsPipeline;
+    std::vector<std::variant<Vertex, BasicVertex>> _vertices;
     std::vector<uint32_t> _indices;
     std::vector<VkDescriptorSet> _descriptorSets;
     VkDescriptorSetLayout _descriptorSetLayout;
+    VkBuffer _vertexBuffer;
+    VkDeviceMemory _vertexBufferMemory;
     std::vector<VkBuffer> _uniformBuffers;
     VkDescriptorPool _descriptorPool;
     std::vector<VkDeviceMemory> _uniformBuffersMemory;
     std::vector<void *> _uniformBuffersMapped;
 
     virtual void createDescriptorSetLayout() = 0;
-    void createGraphicsPipeline(std::string vertPath, std::string fragPath);
-    void createVertexBuffer();
+    virtual void loadModel() = 0;
+    virtual void createVertexBuffer() = 0;
+    virtual void createGraphicsPipeline(std::string vertPath, std::string fragPath) = 0;
     void createIndexBuffer();
-    void loadModel();
+    std::vector<char> readFile(const std::string &filename);
+    VkShaderModule createShaderModule(const std::vector<char> &code);
 
 public:
     Pipeline(Device *device, SwapChain *swapChain, AppConfig *appConfig, std::string vertPath, std::string fragPath, std::string modelPath);
