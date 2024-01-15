@@ -14,28 +14,17 @@ namespace vmr{
 App::App(AppConfig* config) : _appConfig(config) { }
 
 void App::run() {
-    initWindow();
+    _windoww = new Window("Vulkan Material Renderer", _appConfig);
     initVulkan();
     mainLoop();
     cleanup();
 }
 
-void App::initWindow(){
-    glfwInit();
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); //don't create opengl context
-
-    _window = glfwCreateWindow(_appConfig->windowWidth(), _appConfig->windowHeight(), "Vulkan Material Renderer", nullptr, nullptr);
-    glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(_window, mouseMovementCallback);
-    glfwSetWindowUserPointer(_window, this);
-    glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
-}
 void App::initVulkan() {
 
-    _device = new Device(_window);
+    _device = new Device(_windoww->window());
 
-    _swapChain = new SwapChain(_device, _window, _appConfig);
+    _swapChain = new SwapChain(_device, _windoww->window(), _appConfig);
     createRenderPass();
     _modelPipeline = new ModelPipeline(_device, _swapChain, _appConfig, _appConfig->modelVertexShaderPath(), _appConfig->modelFragmentShaderPath(), _appConfig->displayModelPath());
     _lightPipeline = new LightPipeline(_device, _swapChain, _appConfig, _appConfig->lightVertexShaderPath(), _appConfig->lightFragmentShaderPath(), _appConfig->sphereModelPath());
@@ -51,37 +40,12 @@ void App::initVulkan() {
     createSyncObjects();
 }
 
-void App::handleKeystrokes(){
-    if (isPressed(GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(_window, true);
-    if (isPressed(GLFW_KEY_1)) _appConfig->movementMode(MOVEMENT_CAMERA);
-    if (isPressed(GLFW_KEY_2)) _appConfig->movementMode(MOVEMENT_LIGHT);
-    if (_appConfig->movementMode() == MOVEMENT_LIGHT){
-        if (isPressed(GLFW_KEY_W)) _appConfig->lightPosition().x += _appConfig->lightSpeed();
-        if (isPressed(GLFW_KEY_S)) _appConfig->lightPosition().x += -_appConfig->lightSpeed();
-        if (isPressed(GLFW_KEY_A)) _appConfig->lightPosition().y += _appConfig->lightSpeed();
-        if (isPressed(GLFW_KEY_D)) _appConfig->lightPosition().y += -_appConfig->lightSpeed();
-        if (isPressed(GLFW_KEY_Q)) _appConfig->lightPosition().z += _appConfig->lightSpeed();
-        if (isPressed(GLFW_KEY_E)) _appConfig->lightPosition().z += -_appConfig->lightSpeed();
-    } else if (_appConfig->movementMode() == MOVEMENT_CAMERA) {
-        if (isPressed(GLFW_KEY_W)) _appConfig->observerPosition() += _appConfig->cameraSpeed() * _appConfig->cameraFront();
-        if (isPressed(GLFW_KEY_S)) _appConfig->observerPosition() -= _appConfig->cameraSpeed() * _appConfig->cameraFront();
-        if (isPressed(GLFW_KEY_A)) _appConfig->observerPosition() -= glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
-        if (isPressed(GLFW_KEY_D)) _appConfig->observerPosition() += glm::normalize(glm::cross(_appConfig->cameraFront(), _appConfig->cameraUp())) * _appConfig->cameraSpeed();
-        if (isPressed(GLFW_KEY_Q)) _appConfig->observerPosition().z += _appConfig->cameraSpeed();
-        if (isPressed(GLFW_KEY_E)) _appConfig->observerPosition().z += -_appConfig->cameraSpeed();
-    }
-}
-
-bool App::isPressed(int key) {
-    return glfwGetKey(_window, key) == GLFW_PRESS;
-}
-
 void App::mainLoop() { //render frames
     auto start = std::chrono::high_resolution_clock::now();
     uint64_t framesCount = 0;
-    while (!glfwWindowShouldClose(_window)) {
-        glfwPollEvents();
-        handleKeystrokes();
+    while (!_windoww->shouldClose()) {
+        _windoww->pollEvents();
+        _windoww->handleKeystrokes();
         drawFrame();
         framesCount++;
     }
@@ -109,10 +73,7 @@ void App::cleanup() {
 
     delete _device;
 
-
-    glfwDestroyWindow(_window);
-
-    glfwTerminate();
+    delete _windoww;
 }
 
 void App::createRenderPass() {
@@ -323,7 +284,7 @@ void App::drawFrame() {
     result = vkQueuePresentKHR(_device->presentQueue(), &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        _framebufferResized = false;
+        _windoww->framebufferResized() = false;
         _swapChain->recreateSwapChain();
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
@@ -362,38 +323,5 @@ void App::createSyncObjects() {
         }
     }
 }
-
-
-void App::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-    app->_framebufferResized = true;
-}
-
-void App::mouseMovementCallback(GLFWwindow* window, double xpos, double ypos){
-    auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-    if (app->_appConfig->firstMouse()) {
-        app->_appConfig->lastX(xpos);
-        app->_appConfig->lastY(ypos);
-        app->_appConfig->firstMouse(false); 
-    }
-
-    float xoffset = xpos - app->_appConfig->lastX();
-    float yoffset = ypos - app->_appConfig->lastY(); 
-    app->_appConfig->lastX(xpos);
-    app->_appConfig->lastY(ypos);
-
-    float sensitivity = 0.1f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    app->_appConfig->yaw(app->_appConfig->yaw() - xoffset);
-    app->_appConfig->pitch(app->_appConfig->pitch() - yoffset);
-
-    app->_appConfig->pitch(std::clamp(app->_appConfig->pitch(), -89.0f, 89.0f));
-    
-    app->_appConfig->cameraFront().x = cos(glm::radians(app->_appConfig->yaw())) * cos(glm::radians(app->_appConfig->pitch()));
-    app->_appConfig->cameraFront().y = sin(glm::radians(app->_appConfig->yaw())) * cos(glm::radians(app->_appConfig->pitch()));
-    app->_appConfig->cameraFront().z = sin(glm::radians(app->_appConfig->pitch()));
-}  
 
 }

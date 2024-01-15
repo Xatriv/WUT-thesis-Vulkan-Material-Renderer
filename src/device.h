@@ -41,7 +41,7 @@ private:
     VkDebugUtilsMessengerEXT _debugMessenger;
     VkPhysicalDevice _physicalDevice;
     VkDevice _logicalDevice;
-    VkSurfaceKHR _surface; //TODO extract Window
+    VkSurfaceKHR _surface;
     VkQueue _graphicsQueue;
     VkQueue _presentQueue;
     VkCommandPool _commandPool;

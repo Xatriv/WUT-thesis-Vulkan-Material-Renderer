@@ -48,7 +48,7 @@ private:
 public:
     SwapChain(Device* device, GLFWwindow* window, AppConfig* appConfig);
     ~SwapChain();
-    void recreateSwapChain();
+
     VkSwapchainKHR&             swapChain()             {return _swapChain; }
     VkExtent2D&                 extent()                {return _swapChainExtent; }
     VkRenderPass&               renderPass()            {return _renderPass; }
@@ -58,6 +58,7 @@ public:
     VkImageView&                normalMapImageView()    {return _normalMapImageView; }
     VkSampler                   textureSampler()        {return _textureSampler; }
 
+    void recreateSwapChain();
     void createFramebuffers();
     void createDepthResources();
     void createTextureImages();

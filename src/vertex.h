@@ -2,8 +2,6 @@
 
 namespace vmr{
 struct Vertex {
-    //TODO texCoord unnecessary for unicolored light model - this causes validation warning
-    //TODO so does tangent and bitangent for objects without normal maps
     glm::vec3 pos;
     glm::vec3 normal;
     glm::vec2 texCoord;

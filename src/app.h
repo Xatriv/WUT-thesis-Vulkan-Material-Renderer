@@ -15,13 +15,14 @@
 #include "swap_chain.h"
 #include "model_pipeline.h"
 #include "light_pipeline.h"
+#include "window.h"
 
 
 namespace vmr {
 class App{
 private:
     AppConfig* _appConfig;
-    GLFWwindow* _window;
+    Window* _windoww;
     Device* _device;
     SwapChain* _swapChain;
     ModelPipeline* _modelPipeline;
@@ -31,12 +32,8 @@ private:
     std::vector<VkSemaphore> _renderFinishedSemaphores;
     std::vector<VkFence> _inFlightFences;
     uint32_t _currentFrame = 0;
-    bool _framebufferResized = false;
 
-    void initWindow();
     void initVulkan();
-    void handleKeystrokes();
-    bool isPressed(int key);
     void mainLoop();
     void cleanup();
     void createRenderPass();
@@ -45,8 +42,6 @@ private:
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
     void drawFrame();
     void createSyncObjects();
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
-    static void mouseMovementCallback(GLFWwindow* window, double xpos, double ypos);
     
 public:
     App(AppConfig* config);
