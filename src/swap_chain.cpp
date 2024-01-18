@@ -145,6 +145,7 @@ void SwapChain::cleanupSwapChain() {
     }
 
     vkDestroySwapchainKHR(_device->logical(), _swapChain, nullptr);
+    vkDestroyRenderPass(_device->logical(), _renderPass, nullptr);
 }
 
 void SwapChain::createImageViews() {

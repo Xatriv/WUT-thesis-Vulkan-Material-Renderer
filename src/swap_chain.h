@@ -28,7 +28,7 @@ private:
     VkImage _normalMapImage;
     VkDeviceMemory _textureImageMemory;
     VkDeviceMemory _normalMapMemory;
-    VkImageView _textureImageView; //TODO extract ImageView
+    VkImageView _textureImageView;
     VkImageView _normalMapImageView;
     VkSampler _textureSampler;
     

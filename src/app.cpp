@@ -14,17 +14,15 @@ namespace vmr{
 App::App(AppConfig* config) : _appConfig(config) { }
 
 void App::run() {
-    _windoww = new Window("Vulkan Material Renderer", _appConfig);
+    _window = new Window("Vulkan Material Renderer", _appConfig);
     initVulkan();
     mainLoop();
     cleanup();
 }
 
 void App::initVulkan() {
-
-    _device = new Device(_windoww->window());
-
-    _swapChain = new SwapChain(_device, _windoww->window(), _appConfig);
+    _device = new Device(_window->window());
+    _swapChain = new SwapChain(_device, _window->window(), _appConfig);
     createRenderPass();
     _modelPipeline = new ModelPipeline(_device, _swapChain, _appConfig, _appConfig->modelVertexShaderPath(), _appConfig->modelFragmentShaderPath(), _appConfig->displayModelPath());
     _lightPipeline = new LightPipeline(_device, _swapChain, _appConfig, _appConfig->lightVertexShaderPath(), _appConfig->lightFragmentShaderPath(), _appConfig->sphereModelPath());
@@ -40,27 +38,27 @@ void App::initVulkan() {
     createSyncObjects();
 }
 
-void App::mainLoop() { //render frames
+void App::mainLoop() {
     auto start = std::chrono::high_resolution_clock::now();
     uint64_t framesCount = 0;
-    while (!_windoww->shouldClose()) {
-        _windoww->pollEvents();
-        _windoww->handleKeystrokes();
+    while (!_window->shouldClose()) {
+        _window->pollEvents();
+        _window->handleKeystrokes();
         drawFrame();
         framesCount++;
     }
     auto end = std::chrono::high_resolution_clock::now();
-    auto executionTime = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    std::cout<<"Avg fps: "<<framesCount / (double) executionTime.count()<<std::endl;
+    auto executionTime = std::chrono::duration_cast
+                        <std::chrono::seconds>(end - start);
+    std::cout<<"Avg fps: "
+             <<framesCount / (double) executionTime.count()
+             <<std::endl;
 
     vkDeviceWaitIdle(_device->logical());
 }
 
 void App::cleanup() {
     delete _swapChain;
-
-    vkDestroyRenderPass(_device->logical(), _swapChain->renderPass(), nullptr);
-
     delete _modelPipeline;
     delete _lightPipeline;
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -69,11 +67,9 @@ void App::cleanup() {
         vkDestroyFence(_device->logical(), _inFlightFences[i], nullptr);
     }
 
-    vkDestroyCommandPool(_device->logical(), _device->commandPool(), nullptr);
 
     delete _device;
-
-    delete _windoww;
+    delete _window;
 }
 
 void App::createRenderPass() {
@@ -284,7 +280,7 @@ void App::drawFrame() {
     result = vkQueuePresentKHR(_device->presentQueue(), &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        _windoww->framebufferResized() = false;
+        _window->framebufferResized() = false;
         _swapChain->recreateSwapChain();
     } else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");

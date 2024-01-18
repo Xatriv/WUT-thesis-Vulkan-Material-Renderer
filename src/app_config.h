@@ -67,7 +67,7 @@ private:
     bool _firstMouse = true;
     double _lastX;
     double _lastY;
-    float _pitch;
-    float _yaw;
+    float _pitch=0.0f;
+    float _yaw=0.0f;
 };
 }

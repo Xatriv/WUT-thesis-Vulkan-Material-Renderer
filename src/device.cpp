@@ -44,6 +44,7 @@ Device::Device(GLFWwindow* window){
 }
 
 Device::~Device(){
+    vkDestroyCommandPool(_logicalDevice, _commandPool, nullptr);
     vkDestroyDevice(_logicalDevice, nullptr);
 
     if (enableValidationLayers) {

@@ -22,11 +22,11 @@ namespace vmr {
 class App{
 private:
     AppConfig* _appConfig;
-    Window* _windoww;
+    Window* _window;
     Device* _device;
     SwapChain* _swapChain;
     ModelPipeline* _modelPipeline;
-    Pipeline* _lightPipeline;
+    LightPipeline* _lightPipeline;
     std::vector<VkCommandBuffer> _commandBuffers;
     std::vector<VkSemaphore> _imageAvailableSemaphores;
     std::vector<VkSemaphore> _renderFinishedSemaphores;

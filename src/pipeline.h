@@ -20,7 +20,6 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 namespace std {
     template<> struct hash<vmr::Vertex> {
         size_t operator()(vmr::Vertex const& vertex) const {
-            //TODO include all fields
             return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
         }
     };

@@ -6,7 +6,6 @@
 #include "app_config.h"
 
 int main() {
-
     try {
         vmr::AppConfig config = vmr::AppConfig("./config.json");
         vmr::App app(&config);
@@ -15,6 +14,5 @@ int main() {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-
     return EXIT_SUCCESS;
 }
