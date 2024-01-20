@@ -1,7 +1,7 @@
 {
     "path": {
         "sphereModel": "./models/sphere.obj",
-        "displayModel": "./models/face4.obj",
+        "displayModel": "./models/face4v6.obj",
         "modelTexture": "./textures/face_diffuse.jpg",
         "modelNormalMap": "./textures/face_normal.jpg",
         "modelVertexShader": "./shaders/cook_torrance_ggx.vert.spv",
@@ -28,13 +28,13 @@
     },
     "lightSpeed": 0.002,
     "lightPosition": {
-        "x": 2.0,
+        "x": -2.0,
         "y": 0.0,
         "z": 1.0
     },
     "observerPosition": {
-        "x": 1.0,
-        "y": 4.5,
-        "z": 2.0
+        "x": -1.2,
+        "y": -0.6,
+        "z": 0.6
     }
 }

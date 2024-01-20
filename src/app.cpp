@@ -41,6 +41,8 @@ void App::initVulkan() {
 void App::mainLoop() {
     auto start = std::chrono::high_resolution_clock::now();
     uint64_t framesCount = 0;
+    std::cout.setf(std::ios::fixed,std::ios::floatfield);
+    std::cout.precision(3);
     while (!_window->shouldClose()) {
         _window->pollEvents();
         _window->handleKeystrokes();
@@ -50,7 +52,7 @@ void App::mainLoop() {
     auto end = std::chrono::high_resolution_clock::now();
     auto executionTime = std::chrono::duration_cast
                         <std::chrono::seconds>(end - start);
-    std::cout<<"Avg fps: "
+    std::cout<<"\nAvg fps: "
              <<framesCount / (double) executionTime.count()
              <<std::endl;
 
@@ -66,8 +68,6 @@ void App::cleanup() {
         vkDestroySemaphore(_device->logical(), _imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(_device->logical(), _inFlightFences[i], nullptr);
     }
-
-
     delete _device;
     delete _window;
 }
@@ -287,15 +287,14 @@ void App::drawFrame() {
     }
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-    if (_appConfig->movementMode() == MOVEMENT_CAMERA){
-        std::cout<<"CAM "<<_appConfig->observerPosition().x<<";"
-                        <<_appConfig->observerPosition().y<<";"
-                        <<_appConfig->observerPosition().z<<"\n";
-    } else if (_appConfig->movementMode() == MOVEMENT_LIGHT){
-        std::cout<<"SRC "<<_appConfig->lightPosition().x<<";"
-                        <<_appConfig->lightPosition().y<<";"
-                        <<_appConfig->lightPosition().z<<"\n";
-    }
+    std::cout<<"\rCurrent mode: "
+                <<(_appConfig->movementMode() == MOVEMENT_CAMERA ? "Camera" : "Light source")<<" | "
+                <<"Camera location: ("<<_appConfig->observerPosition().x<<";"
+                <<_appConfig->observerPosition().y<<";"
+                <<_appConfig->observerPosition().z<<") "
+                <<"Light source location: ("<<_appConfig->lightPosition().x<<";"
+                <<_appConfig->lightPosition().y<<";"
+                <<_appConfig->lightPosition().z<<")       ";
 }
 
 void App::createSyncObjects() {

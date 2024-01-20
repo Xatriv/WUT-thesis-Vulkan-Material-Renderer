@@ -190,11 +190,9 @@ void ModelPipeline::updateUniformBuffer(uint32_t currentImage) {
     ubo.model = scale;
     ubo.view = view;
     ubo.proj = proj;
-    ubo.shininess = 8;
     ubo.position = cameraPos;
     ubo.lightPosition = _appConfig->lightPosition();
     memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
-
 }
 
 void ModelPipeline::prepareTangentSpace(){
@@ -268,6 +266,7 @@ void ModelPipeline::loadModel() {
             _indices.push_back(uniqueVertices[vertex]);
         }
     }
+    std::cout<<"Loaded model: \""<<_modelPath<<"\" ("<<_vertices.size()<<" vertices; "<<_indices.size()<<" indices )\n";
 }
 
 void ModelPipeline::createGraphicsPipeline(std::string vertPath, std::string fragPath) {

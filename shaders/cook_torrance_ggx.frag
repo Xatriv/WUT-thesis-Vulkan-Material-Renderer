@@ -15,10 +15,10 @@ layout(binding = 0) uniform UniformBufferObject {
     vec3 lightPosition;
 } ubo;
 layout(binding = 1) uniform sampler2D texSampler;
-layout(binding = 2) uniform sampler2D normalMapSampler; //TODO may be broken
+layout(binding = 2) uniform sampler2D normalMapSampler; 
 
 layout(location = 0) in vec3 vertexPosition;
-layout(location = 1) in vec3 vertexNormal; //TODO probably could be removed
+layout(location = 1) in vec3 vertexNormal;
 layout(location = 2) in vec2 vertexTexCoord;
 layout(location = 3) in mat3 TBNMatrix;
 
@@ -73,7 +73,7 @@ vec4 rs() {
 
     //TODO diffuse should be multiplied by kd but right now it's too dim
 
-    vec4 ka = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 ka = vec4(0.05, 0.05, 0.05, 1.0);
 
     // return ks * brdf * sinT + texture(texSampler, vertexTexCoord) * NdotL;   // version according to formula
     return (ks * brdf * sinT + NdotL + ka) * texture(texSampler, vertexTexCoord) ;   // color-corrected specular

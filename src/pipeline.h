@@ -37,14 +37,12 @@ struct ModelUniformBufferObject {
     alignas(16) glm::mat4 proj;
     alignas(16) glm::vec3 position;
     alignas(16) glm::vec3 lightPosition;
-    alignas(16) int shininess;
 };
 
 struct LightUniformBufferObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
-
 };
 
 

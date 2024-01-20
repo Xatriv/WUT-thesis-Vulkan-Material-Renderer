@@ -12,7 +12,6 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 proj;
-    vec3 rgb;
     vec3 position;
     vec3 lightPosition;
 } ubo;
@@ -34,5 +33,5 @@ void main()
     vec3 specularVector = reflect(-normalize(ubo.lightPosition-vertexPosition), normalize(vertexNormal));
     fragmentColor3 += specularReflectionConstant * pow(max(dot(observerOrientedVector, specularVector),0), shininess) * lightColor;
 
-    fragmentColor = vec4(fragmentColor3 * ubo.rgb, 1.0);
+    fragmentColor = vec4(fragmentColor3 * vec3(0.5, 0.5, 0.5), 1.0);
 }
