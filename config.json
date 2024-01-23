@@ -28,9 +28,9 @@
     },
     "lightSpeed": 0.002,
     "lightPosition": {
-        "x": -2.0,
-        "y": 0.0,
-        "z": 1.0
+        "x": -0.7,
+        "y": -0.1,
+        "z": 0.5
     },
     "observerPosition": {
         "x": -1.2,

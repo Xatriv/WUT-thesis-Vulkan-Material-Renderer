@@ -177,7 +177,7 @@ void LightPipeline::loadModel() {
             _indices.push_back(uniqueVertices[vertex]);
         }
     }
-    std::cout<<"Loaded model: \""<<_modelPath<<"\" ("<<_vertices.size()<<" vertices; "<<_indices.size()<<" indices )\n";
+    printModelInfo();
 }
 
 void LightPipeline::createGraphicsPipeline(std::string vertPath, std::string fragPath) {

@@ -31,12 +31,38 @@ float chi(float v)
 }
 
 
+//Reverse Screen-space Ambient Occlusion
+float thickness(in vec3 n, float maxDist, float falloff) {
+    const int sampleCount = 7;
+    float ao = 0.0;
+
+    for (int i=0; i<sampleCount; i++) {
+        ao += fract(sin(i/10))*maxDist;
+    }
+
+    return 1.0 - ao/float(sampleCount);
+}
+
+
+// Barre-Brisebois Approximated Subsurface Scattering
+vec3 sss2(vec3 diffuse, vec3 N, vec3 V, vec3 L) { 
+    float distortion = 1.0;
+    vec3 lightVec = L + N * distortion;
+    float power = 12.0;
+    float powDot = pow(clamp(dot(V, lightVec), 0.0, 1.0), power);
+    float lightAttenuation = 1 / pow(length(ubo.lightPosition-vertexPosition) / 2, 3.0); 
+    float ambient = 1.0;
+    float translucency = lightAttenuation * (powDot + ambient) * thickness(N, 6.0, 0.6);
+    float lightDiffuse = 0.0005;
+    return diffuse * lightDiffuse * translucency;
+}
+
 // Cook-Torrance Specular
 vec4 rs() {
+    vec4 diffuseTex = texture(texSampler, vertexTexCoord);
+    vec4 normalTex = texture(normalMapSampler, vertexTexCoord);
 
-    // vec3 N = normalize(vertexNormal);
-    vec3 N = normalize(texture(normalMapSampler, vertexTexCoord).rgb);
-    // N = N * 2.0 - 1.0; //This is probably wrong 
+    vec3 N = normalize(normalTex.rgb);
     N = normalize(TBNMatrix * N);
     vec3 V = normalize(ubo.position - vertexPosition);
     vec3 L = normalize(ubo.lightPosition - vertexPosition);
@@ -60,8 +86,7 @@ vec4 rs() {
     //Schlick-Fresnel
 
     float chiOfActualNormal = chi(dot(normalize(N), L));
-    float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chiOfActualNormal;//TODO too dim for roughness==1.0
-    // float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chi(NdotL); //TODO too dim for roughness==1.0
+    float G = 0.5 / mix(2 * HdotL * HdotV, HdotL + HdotV, roughness) * chiOfActualNormal;
     // Unreal G_GGX approximation
 
     float brdf = G * F * D;
@@ -71,12 +96,12 @@ vec4 rs() {
 
     float sinT = sqrt( 1 - NdotL * NdotL);
 
-    //TODO diffuse should be multiplied by kd but right now it's too dim
-
     vec4 ka = vec4(0.05, 0.05, 0.05, 1.0);
 
-    // return ks * brdf * sinT + texture(texSampler, vertexTexCoord) * NdotL;   // version according to formula
-    return (ks * brdf * sinT + NdotL + ka) * texture(texSampler, vertexTexCoord) ;   // color-corrected specular
+    vec4 fin = (ks * brdf * sinT + NdotL + ka) * diffuseTex;   // color-corrected specular
+    vec3 sssCol = sss2(diffuseTex.rgb, N, V, L);
+    sssCol = clamp(sssCol, 0.0, 1.0);
+    return vec4(sssCol, 1.0) + fin ;
 }
 
 

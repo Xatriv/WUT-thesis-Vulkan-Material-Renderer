@@ -88,4 +88,8 @@ void Pipeline::bind(VkCommandBuffer& commandBuffer, int currentFrame) {
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(_indices.size()), 1, 0, 0, 0);
 }
 
+void Pipeline::printModelInfo() {
+    std::cout<<"Loaded model: \""<<_modelPath<<"\" ("<<_vertices.size()<<" vertices; "<<_indices.size()<<" indices )\n";
+}
+
 }

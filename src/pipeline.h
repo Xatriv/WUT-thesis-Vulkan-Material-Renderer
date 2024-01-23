@@ -81,6 +81,7 @@ protected:
     void createIndexBuffer();
     std::vector<char> readFile(const std::string &filename);
     VkShaderModule createShaderModule(const std::vector<char> &code);
+    void printModelInfo();
 
 public:
     Pipeline(Device *device, SwapChain *swapChain, AppConfig *appConfig, std::string vertPath, std::string fragPath, std::string modelPath);
