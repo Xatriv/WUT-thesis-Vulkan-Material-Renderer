@@ -1,5 +1,3 @@
-#pragma once
-
 #include "light_pipeline.h"
 
 namespace vmr

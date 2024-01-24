@@ -31,13 +31,13 @@ float chi(float v)
 }
 
 
-//Reverse Screen-space Ambient Occlusion
-float thickness(in vec3 n, float maxDist, float falloff) {
+//Simplified reverse Screen-space Ambient Occlusion
+float thickness(float maximumDistance, float falloff) {
     const int sampleCount = 7;
     float ao = 0.0;
 
     for (int i=0; i<sampleCount; i++) {
-        ao += fract(sin(i/10))*maxDist;
+        ao += fract(sin(i/10))*maximumDistance;
     }
 
     return 1.0 - ao/float(sampleCount);
@@ -52,7 +52,7 @@ vec3 sss2(vec3 diffuse, vec3 N, vec3 V, vec3 L) {
     float powDot = pow(clamp(dot(V, lightVec), 0.0, 1.0), power);
     float lightAttenuation = 1 / pow(length(ubo.lightPosition-vertexPosition) / 2, 3.0); 
     float ambient = 1.0;
-    float translucency = lightAttenuation * (powDot + ambient) * thickness(N, 6.0, 0.6);
+    float translucency = lightAttenuation * (powDot + ambient) * thickness(6.0, 0.6);
     float lightDiffuse = 0.0005;
     return diffuse * lightDiffuse * translucency;
 }

@@ -15,7 +15,7 @@ TARGET = $(BUILD_DIR)/VMR.out
 
 $(TARGET): $(vertObjFiles) $(fragObjFiles)
 $(TARGET): $(cppSources)
-	$(CC) $(CFLAGS) -o $(TARGET) $(cppSources) $(LDFLAGS) 2> error.txt
+	$(CC) $(CFLAGS) -o $(TARGET) $(cppSources) $(LDFLAGS) 
 
 %.spv: %
 	$(GLSLC) $< -o $@

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "model_pipeline.h"
 
 namespace vmr{
